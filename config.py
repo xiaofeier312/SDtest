@@ -19,7 +19,7 @@ class ProductionConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
-    #SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@127.0.0.1/tushare?charset=utf8'
+    #old config: #SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@127.0.0.1/tushare?charset=utf8'
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:@localhost/sdauto?charset=utf8'
 
 
