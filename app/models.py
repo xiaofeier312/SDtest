@@ -139,11 +139,10 @@ class TomcatEnv(db.Model):
     __tablename__ = 'tomcat_env'
     id = db.Column(db.Integer, primary_key=True)
     ip = db.Column(db.String(256), nullable=False)
-    port = db.Column(db.Integer,nullable=False)
-    tomcatName = db.Column(db.String(64),nullable=True)
-    remark = db.Column(db.String(64),nullable=True)
+    port = db.Column(db.Integer, nullable=False)
+    tomcatName = db.Column(db.String(64), nullable=True)
+    remark = db.Column(db.String(64), nullable=True)
     create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
     operator = db.Column(db.String(64), nullable=True)
     op_time = db.Column(db.DateTime, nullable=True,
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
-
