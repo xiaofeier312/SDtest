@@ -19,8 +19,11 @@ class ProductionConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
-    #old config: #SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@127.0.0.1/tushare?charset=utf8'
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:adadad1@localhost/sdauto?charset=utf8'
+    # old config:
+    # SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@127.0.0.1/tushare?charset=utf8'
+    # mac mysql
+    # SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:adadad1@localhost/sdauto?charset=utf8'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://alimysql:alimysql7933@47.98.133.163/sdauto?charset=utf8'
     SQLALCHEMY_BINDS = {
 
     }

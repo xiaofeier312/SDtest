@@ -40,7 +40,7 @@ class APIModules(db.Model):
 
 class APIDoc(db.Model):
     """API doc"""
-    __tablename__ = 'API_name'
+    __tablename__ = 'api_name'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False, unique=False)
     # moduleID = db.Column(db.Integer, db.ForeignKey('modules.id'), nullable=False)
@@ -65,7 +65,7 @@ class APIDoc(db.Model):
 
 class APICases(db.Model):
     """http_method: 1 get/2 post/3 del/4 put"""
-    __tablename__ = 'API_Cases'
+    __tablename__ = 'api_cases'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=True, default='interface test')
     # APINameID = db.Column(db.Integer, db.ForeignKey('API_name.id'), nullable=False)
@@ -91,7 +91,7 @@ class APICases(db.Model):
 class CasesVerify(db.Model):
     """verify parts, containing json data(according to json path) verify,\
      mysql script verify, and operation//// """
-    __tablename__ = 'CaseVerify'
+    __tablename__ = 'case_verify'
     id = db.Column(db.Integer, primary_key=True)
     case_id = db.Column(db.Integer)
     # verify_path is the data(to be verify)'s path in result json
@@ -113,7 +113,7 @@ class CasesResult(db.Model):
     id = db.Column(db.INTEGER, primary_key=True)
     task_id = db.Column(db.INTEGER)
     case_id = db.Column(db.INTEGER)
-    result = db.Column(db.Text) #may be save batch results
+    result = db.Column(db.Text)  # may be save batch results
     create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
     operator = db.Column(db.String(64), nullable=True)
     op_time = db.Column(db.DateTime, nullable=True,
@@ -132,3 +132,18 @@ class TaskStatus(db.Model):
     operator = db.Column(db.String(64), nullable=True)
     op_time = db.Column(db.DateTime, nullable=True,
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+
+
+class TomcatEnv(db.Model):
+    """tomcat IP+ port, not contact with project or module"""
+    __tablename__ = 'tomcat_env'
+    id = db.Column(db.Integer, primary_key=True)
+    ip = db.Column(db.String(256), nullable=False)
+    port = db.Column(db.Integer,nullable=False)
+    tomcatName = db.Column(db.String(64),nullable=True)
+    remark = db.Column(db.String(64),nullable=True)
+    create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
+    operator = db.Column(db.String(64), nullable=True)
+    op_time = db.Column(db.DateTime, nullable=True,
+                        server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+
