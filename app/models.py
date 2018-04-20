@@ -45,6 +45,7 @@ class APIDoc(db.Model):
     name = db.Column(db.String(64), nullable=False, unique=False)
     # moduleID = db.Column(db.Integer, db.ForeignKey('modules.id'), nullable=False)
     moduleID = db.Column(db.Integer, nullable=False)
+    type = db.Column(db.Integer,nullable=True) # 0 is http, 1 is RPC
     Api_priority = db.Column(db.Integer)
     url = db.Column(db.String(128))
     is_https = db.Column(db.Integer, nullable=True, default=0)
