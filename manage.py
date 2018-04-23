@@ -15,17 +15,19 @@ manager.add_command('shell', Shell(make_context=make_shell_context))
 migrate = Migrate(app,db)
 manager.add_command('db', MigrateCommand)
 
-#
-from app import app_admin
-from app.admin.views import CustomModelView, projectsModelView, modulesModelView
-from app.models import APIProjects, APIModules, APICases, APIDoc, TomcatEnv, CasesVerify
+#Add_view
+def init_custom_view():
+    """customModelView for every data class"""
+    from app import app_admin
+    from app.admin.views import CustomModelView, projectsModelView, modulesModelView
+    from app.models import APIProjects, APIModules, APICases, APIDoc, TomcatEnv, CasesVerify
 
-app_admin.add_view(projectsModelView(APIProjects, db.session, category='新增'))
-app_admin.add_view(CustomModelView(TomcatEnv, db.session, category='新增'))
-app_admin.add_view(modulesModelView(APIModules, db.session, category='新增'))
-app_admin.add_view(CustomModelView(APIDoc, db.session, category='新增'))
-app_admin.add_view(CustomModelView(APICases, db.session, category='新增'))
-app_admin.add_view(CustomModelView(CasesVerify, db.session, category='新增'))
+    app_admin.add_view(projectsModelView(APIProjects, db.session, category='新增'))
+    app_admin.add_view(CustomModelView(TomcatEnv, db.session, category='新增'))
+    app_admin.add_view(modulesModelView(APIModules, db.session, category='新增'))
+    app_admin.add_view(CustomModelView(APIDoc, db.session, category='新增'))
+    app_admin.add_view(CustomModelView(APICases, db.session, category='新增'))
+    app_admin.add_view(CustomModelView(CasesVerify, db.session, category='新增'))
 
 
 @manager.command
@@ -57,4 +59,6 @@ def init_data():
     db.session.commit()
 
 if __name__ == '__main__':
+    print('---Running---')
+    init_custom_view() #!!!When first create DB, comment this. or it will occur exception: cannot find table XXX
     manager.run()

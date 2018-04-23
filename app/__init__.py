@@ -21,8 +21,7 @@ def create_app(config_name):
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
-    from .admin import sd_admin as sd_admin_blueprint
-    app.register_blueprint(sd_admin_blueprint)
+
 
     print('^_^ APP is created ^_^')
     return app
