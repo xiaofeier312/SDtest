@@ -1,6 +1,5 @@
-from . import db
+from app import db
 from sqlalchemy import text
-
 
 class APIProjects(db.Model):
     """Class for projects"""

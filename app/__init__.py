@@ -2,7 +2,7 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from config import config
 from flask_admin import Admin
-from app.admin.views import CustomModelView, projectsModelView,modulesModelView
+
 
 db = SQLAlchemy()
 app_admin = Admin(name='API auto',template_mode='bootstrap3')
@@ -17,16 +17,12 @@ def create_app(config_name):
 
     # flask_admin
     app_admin.init_app(app)
-    from app.models import APIProjects, APIModules, APICases, APIDoc, TomcatEnv, CasesVerify
-    app_admin.add_view(projectsModelView(APIProjects, db.session, category='新增'))
-    app_admin.add_view(CustomModelView(TomcatEnv, db.session, category='新增'))
-    app_admin.add_view(modulesModelView(APIModules, db.session, category='新增'))
-    app_admin.add_view(CustomModelView(APIDoc, db.session, category='新增'))
-    app_admin.add_view(CustomModelView(APICases, db.session, category='新增'))
-    app_admin.add_view(CustomModelView(CasesVerify, db.session, category='新增'))
+
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+    from .admin import sd_admin as sd_admin_blueprint
+    app.register_blueprint(sd_admin_blueprint)
 
     print('^_^ APP is created ^_^')
     return app

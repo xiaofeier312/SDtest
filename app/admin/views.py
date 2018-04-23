@@ -1,4 +1,20 @@
 from flask_admin.contrib.sqla import ModelView
+from app.models import APIProjects
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+
+def get_projects():
+    """return [tuple(project.id,project.name),]"""
+    engine = create_engine('mysql+pymysql://alimysql:alimysql7933@47.98.133.163/sdauto?charset=utf8', echo=True)
+    DBsession = sessionmaker(bind=engine)
+    session = DBsession()
+    pros = session.query(APIProjects).all()
+    print('----pros: {}'.format(pros[0]))
+    project_tuples = []  # project info as tuple saved in list
+    for i in pros:
+        project_tuples.append((str(i.id), i.name))
+    return project_tuples
 
 
 class CustomModelView(ModelView):
@@ -16,7 +32,7 @@ class projectsModelView(ModelView):
     column_filters = ['name']
     create_modal = True
     edit_modal = True
-    form_excluded_columns = ['create_time', 'op_time'] # remove fields from the create and edit forms
+    form_excluded_columns = ['create_time', 'op_time']  # remove fields from the create and edit forms
 
 
 class modulesModelView(ModelView):
@@ -29,12 +45,9 @@ class modulesModelView(ModelView):
     column_filters = ['name']
     create_modal = True
     edit_modal = True
-    form_choices = {
-        'projectID': [
-            ('1','project1'),
-            ('2', 'project2'),
 
-        ]
+    # pros = APIProjects.query.all() # Will 'Either work inside a view function or push an application context'
+    form_choices = {
+        'projectID': get_projects()
     }
     form_excluded_columns = ['create_time', 'op_time']
-
