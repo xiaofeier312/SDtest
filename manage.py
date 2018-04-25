@@ -47,5 +47,4 @@ def init_data():
 
 if __name__ == '__main__':
     print('---Running---')
-    init_custom_view() #!!!When first create DB, comment this. or it will occur exception: cannot find table XXX
     manager.run()

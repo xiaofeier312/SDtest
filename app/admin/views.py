@@ -36,5 +36,9 @@ class modulesModelView(ModelView):
     form_choices = {
         'projectID': DataChoice.get_projects()
     }
+
+    form_ajax_refs = {
+        ''
+    }
     DataChoice.clear_db_session()
     form_excluded_columns = ['create_time', 'op_time']

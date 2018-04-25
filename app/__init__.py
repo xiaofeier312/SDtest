@@ -22,7 +22,7 @@ def create_app(config_name):
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
-
+    init_custom_view()  # !!!When first create DB, comment this. or it will occur exception: cannot find table XXX
     print('^_^ APP is created ^_^')
     return app
 
