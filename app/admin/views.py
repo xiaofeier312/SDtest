@@ -1,7 +1,14 @@
 from flask_admin.contrib.sqla import ModelView
 from app.models import APIProjects
 from .services import DataChoice
+from flask_admin.contrib.sqla.ajax import QueryAjaxModelLoader
+from app import db
 
+###
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app.models import APIProjects, APIModules
+###
 
 class CustomModelView(ModelView):
     """View function of Flask-Admin for Models page."""
@@ -33,12 +40,18 @@ class modulesModelView(ModelView):
     edit_modal = True
 
     # pros = APIProjects.query.all() # Will 'Either work inside a view function or push an application context'
-    form_choices = {
-        'projectID': DataChoice.get_projects()
-    }
+    # form_choices = {
+    #     'projectID': DataChoice.get_projects()
+    # }
 
-    form_ajax_refs = {
-        ''
-    }
-    DataChoice.clear_db_session()
+    # engine = create_engine('mysql+pymysql://alimysql:alimysql7933@47.98.133.163/sdauto?charset=utf8', echo=True)
+    # DBsession = sessionmaker(bind=engine)
+    # session = DBsession()
+    # from_ajax_refs = {
+    #     'projectID':{'fields':APIProjects.name}
+    # }
+    # form_ajax_refs = {
+    #     'projectID':QueryAjaxModelLoader('name',session,APIProjects,filters=['id>0'],fields=['name'])
+    # }
+    # DataChoice.clear_db_session()
     form_excluded_columns = ['create_time', 'op_time']

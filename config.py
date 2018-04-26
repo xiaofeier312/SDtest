@@ -18,7 +18,7 @@ class ProductionConfig(Config):
 
 
 class TestingConfig(Config):
-    TESTING = True
+    DEBUG = True
     # old config:
     # SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@127.0.0.1/tushare?charset=utf8'
     # mac mysql
