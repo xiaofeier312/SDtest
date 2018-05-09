@@ -40,15 +40,15 @@ class APIModules(db.Model):
 
 class APIDoc(db.Model):
     """API doc"""
-    __tablename__ = 'api_name'
+    __tablename__ = 'api_doc'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False, unique=False)
     moduleID = db.Column(db.Integer, db.ForeignKey('modules.id'), nullable=False)
     #type = db.Column(db.Integer, nullable=True)  # 0 is http, 1 is RPC
     Api_priority = db.Column(db.Integer)
-    url = db.Column(db.String(128))
+    path = db.Column(db.String(128))  #only contain path, NOT contain IP,Port
     is_https = db.Column(db.Integer, nullable=True, default=0)
-    http_method = db.Column(db.String(64), nullable=False)
+    http_method = db.Column(db.String(64), nullable=False)  # get, post, put
     headers = db.Column(db.Text, nullable=True)
     body = db.Column(db.Text, nullable=True)
     remark = db.Column(db.Text, nullable=True)
@@ -56,6 +56,7 @@ class APIDoc(db.Model):
     operator = db.Column(db.String(64), nullable=True)
     op_time = db.Column(db.DateTime, nullable=True,
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+    module = db.relationship(APIModules, backref='APIDoc')
 
     def __repr__(self):
         return '<API name> %r, <belong to moduleID> %r' % (self.name, self.moduleID)
@@ -68,8 +69,7 @@ class APICases(db.Model):
     __tablename__ = 'api_cases'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=True, default='interface test')
-    # APINameID = db.Column(db.Integer, db.ForeignKey('API_name.id'), nullable=False)
-    APINameID = db.Column(db.Integer, nullable=False)
+    APINameID = db.Column(db.Integer, db.ForeignKey('api_doc.id'), nullable=False)
     url = db.Column(db.String(64), nullable=False)
     Api_priority = db.Column(db.Integer)
     is_https = db.Column(db.Integer, nullable=True, default=0)
@@ -82,6 +82,7 @@ class APICases(db.Model):
     operator = db.Column(db.String(64), nullable=True)
     op_time = db.Column(db.DateTime, nullable=True,
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+    doc = db.relationship(APIDoc, backref='APICase')
 
     def __repr__(self):
         return '<API cases:> %r, <url> %r, <body> %r, <response> %r' % (
@@ -93,7 +94,7 @@ class CasesVerify(db.Model):
      mysql script verify, and operation//// """
     __tablename__ = 'case_verify'
     id = db.Column(db.Integer, primary_key=True)
-    case_id = db.Column(db.Integer)
+    case_id = db.Column(db.Integer, db.ForeignKey('api_cases.id'), nullable=False)
     # verify_path is the data(to be verify)'s path in result json
     verify_path = db.Column(db.String(128))
     # verify_expect is the expect value
@@ -106,18 +107,20 @@ class CasesVerify(db.Model):
     operator = db.Column(db.String(64), nullable=True)
     op_time = db.Column(db.DateTime, nullable=True,
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+    case = db.relationship(APICases, backref='verify')
 
 
 class CasesResult(db.Model):
     __tablename__ = 'cases_result'
     id = db.Column(db.INTEGER, primary_key=True)
     task_id = db.Column(db.INTEGER)
-    case_id = db.Column(db.INTEGER)
+    case_id = db.Column(db.INTEGER, db.ForeignKey('api_cases.id'), nullable=False)
     result = db.Column(db.Text)  # may be save batch results
     create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
     operator = db.Column(db.String(64), nullable=True)
     op_time = db.Column(db.DateTime, nullable=True,
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+    case = db.relationship(APICases, backref='result')
 
 
 class TaskStatus(db.Model):
