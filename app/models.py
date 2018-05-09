@@ -1,6 +1,7 @@
 from app import db
 from sqlalchemy import text
 
+
 class APIProjects(db.Model):
     """Class for projects"""
     __tablename__ = 'projects'
@@ -24,12 +25,12 @@ class APIModules(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=False, nullable=False)
     remark = db.Column(db.String(64), nullable=False)
-    # projectID = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
-    projectID = db.Column(db.Integer, nullable=False)
+    projectID = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
     operator = db.Column(db.String(64), nullable=True)
     op_time = db.Column(db.DateTime, nullable=True,
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+    project = db.relationship(APIProjects, backref='modules')
 
     def __repr__(self):
         return '<Name> %r, <project_id> %r' % (self.name, self.projectID)
@@ -42,9 +43,8 @@ class APIDoc(db.Model):
     __tablename__ = 'api_name'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False, unique=False)
-    # moduleID = db.Column(db.Integer, db.ForeignKey('modules.id'), nullable=False)
-    moduleID = db.Column(db.Integer, nullable=False)
-    type = db.Column(db.Integer,nullable=True) # 0 is http, 1 is RPC
+    moduleID = db.Column(db.Integer, db.ForeignKey('modules.id'), nullable=False)
+    #type = db.Column(db.Integer, nullable=True)  # 0 is http, 1 is RPC
     Api_priority = db.Column(db.Integer)
     url = db.Column(db.String(128))
     is_https = db.Column(db.Integer, nullable=True, default=0)
