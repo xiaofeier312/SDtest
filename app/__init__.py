@@ -31,12 +31,12 @@ def create_app(config_name):
 def init_custom_view():
     """customModelView for every data class"""
     from app import app_admin
-    from app.admin.views import CustomModelView, projectsModelView, modulesModelView
+    from app.admin.views import CustomModelView, projectsModelView, modulesModelView,DocModelView,caseModelView,verifyModelView,resultModelView
     from app.models import APIProjects, APIModules, APICases, APIDoc, TomcatEnv, CasesVerify
 
     app_admin.add_view(projectsModelView(APIProjects, db.session, category='新增'))
     app_admin.add_view(CustomModelView(TomcatEnv, db.session, category='新增'))
     app_admin.add_view(modulesModelView(APIModules, db.session, category='新增'))
-    app_admin.add_view(CustomModelView(APIDoc, db.session, category='新增'))
-    app_admin.add_view(CustomModelView(APICases, db.session, category='新增'))
-    app_admin.add_view(CustomModelView(CasesVerify, db.session, category='新增'))
+    app_admin.add_view(DocModelView(APIDoc, db.session, category='新增'))
+    app_admin.add_view(caseModelView(APICases, db.session, category='新增'))
+    app_admin.add_view(verifyModelView(CasesVerify, db.session, category='新增'))

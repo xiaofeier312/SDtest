@@ -14,7 +14,7 @@ class APIProjects(db.Model):
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
     def __repr__(self):
-        return '<ID>: %d <Name>: %r' % (self.id, self.name)
+        return '%r' % (self.name)
 
         # object_module = db.relationship('APIModules', backref='project')
 
@@ -33,7 +33,7 @@ class APIModules(db.Model):
     project = db.relationship(APIProjects, backref='modules')
 
     def __repr__(self):
-        return '<Name> %r, <project_id> %r' % (self.name, self.projectID)
+        return '%r, <project_id> %r' % (self.name, self.projectID)
 
         # object_APIName = db.relationship('APIDoc', backref='modules')
 
@@ -49,7 +49,7 @@ class APIDoc(db.Model):
     path = db.Column(db.String(128))  #only contain path, NOT contain IP,Port
     is_https = db.Column(db.Integer, nullable=True, default=0)
     http_method = db.Column(db.String(64), nullable=False)  # get, post, put
-    headers = db.Column(db.Text, nullable=True)
+    headers = db.Column(db.Text, nullable=True, default='Content-Type:application/json;charset=utf-8')
     body = db.Column(db.Text, nullable=True)
     remark = db.Column(db.Text, nullable=True)
     create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
@@ -59,7 +59,7 @@ class APIDoc(db.Model):
     module = db.relationship(APIModules, backref='APIDoc')
 
     def __repr__(self):
-        return '<API name> %r, <belong to moduleID> %r' % (self.name, self.moduleID)
+        return '%r, <belong to moduleID> %r' % (self.name, self.moduleID)
 
         # object_APICases = db.relationship('APICases', backref='API_name')
 
@@ -70,10 +70,10 @@ class APICases(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=True, default='interface test')
     APINameID = db.Column(db.Integer, db.ForeignKey('api_doc.id'), nullable=False)
-    url = db.Column(db.String(64), nullable=False)
+    url = db.Column(db.String(64), nullable=True)
     Api_priority = db.Column(db.Integer)
     is_https = db.Column(db.Integer, nullable=True, default=0)
-    http_method = db.Column(db.Integer, nullable=False)
+    http_method = db.Column(db.Integer, nullable=True)
     headers = db.Column(db.Text, nullable=True, default='Content-Type:application/json;charset=utf-8')
     body = db.Column(db.Text)
     remark = db.Column(db.Text, nullable=True)

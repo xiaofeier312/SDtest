@@ -71,6 +71,10 @@ class DocModelView(ModelView):
             'pagesize': 10
         }
     }
+    form_choices = {
+        'Api_priority':[('1','1'),('2','2'),('3','3')],
+        'http_method':[('get','get'),('post','post'),('put','put')]
+    }
 
 
 class caseModelView(ModelView):
@@ -78,13 +82,18 @@ class caseModelView(ModelView):
     create_modal = True
     edit_modal = True
     form_excluded_columns = ['create_time', 'op_time']
-    form_columns = ('name', 'doc', 'Api_priority', 'path', 'http_method', 'headers', 'body','http_response', 'remark', 'operator')
+    form_columns = ('name', 'doc', 'Api_priority', 'url', 'http_method', 'headers', 'body','http_response', 'remark', 'operator')
     form_ajax_refs = {
         'doc': {
             'fields': [APIDoc.name],
             'pagesize': 10
         }
     }
+    form_choices = {
+        'Api_priority':[('1','1'),('2','2'),('3','3')],
+        'http_method':[('get','get'),('post','post'),('put','put')]
+    }
+
 
 class verifyModelView(ModelView):
     """Custom caseVerify view"""
