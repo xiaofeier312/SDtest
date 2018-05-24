@@ -81,8 +81,8 @@ class caseModelView(ModelView):
     """Custom API cases view"""
     create_modal = True
     edit_modal = True
-    form_excluded_columns = ['create_time', 'op_time']
-    form_columns = ('name', 'doc', 'Api_priority', 'url', 'http_method', 'headers', 'body','http_response', 'remark', 'operator')
+    form_excluded_columns = ['create_time', 'op_time','Api_priority', 'is_https', 'http_method', 'http_response' ]
+    form_columns = ('name', 'doc', 'url', 'headers', 'body', 'remark', 'operator')
     form_ajax_refs = {
         'doc': {
             'fields': [APIDoc.name],
@@ -93,6 +93,7 @@ class caseModelView(ModelView):
         'Api_priority':[('1','1'),('2','2'),('3','3')],
         'http_method':[('get','get'),('post','post'),('put','put')]
     }
+    column_exclude_list = ['Api_priority', 'is_https', 'http_method', 'http_response']
 
 
 class verifyModelView(ModelView):

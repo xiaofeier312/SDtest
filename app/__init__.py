@@ -2,11 +2,12 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from config import config
 from flask_admin import Admin
+from flask_bootstrap import Bootstrap
 
 
 db = SQLAlchemy()
 app_admin = Admin(name='API auto',template_mode='bootstrap3')
-
+bootstrap = Bootstrap()
 
 def create_app(config_name):
     """Use factory to product app"""
@@ -17,6 +18,7 @@ def create_app(config_name):
 
     # flask_admin
     app_admin.init_app(app)
+    bootstrap.init_app(app)
 
 
     from .main import main as main_blueprint
@@ -40,3 +42,4 @@ def init_custom_view():
     app_admin.add_view(DocModelView(APIDoc, db.session, category='新增'))
     app_admin.add_view(caseModelView(APICases, db.session, category='新增'))
     app_admin.add_view(verifyModelView(CasesVerify, db.session, category='新增'))
+    app_admin.add_view(verifyModelView(CasesVerify, db.session, endpoint='ss'))

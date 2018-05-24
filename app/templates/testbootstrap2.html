@@ -1,0 +1,63 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}All Blog{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <style type="text/css">
+        div.panel-body {
+            padding: 3px;
+        }
+
+        div.form-group {
+            margin: 5px
+        }
+    </style>
+{% endblock %}
+
+
+{% block navbar %}
+    <div class="navbar navbar-inverse" role="navigation">
+        <div class="container-fluid">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-road"></span> All Blog</a>
+                </div>
+                <div>
+                    <ul class="nav navbar-nav">
+                        <li><a href="/v2/newdoc">
+                            <span class="glyphicon glyphicon-file"> </span> API Document
+                        </a></li>
+                        <li>
+                            <a href="/easy/easydata">
+                                <span class="glyphicon glyphicon-floppy-open"></span> Easy Data</a>
+                        </li>
+                        <li>
+                            <a href="/edit/edithosts">
+                                <span class="glyphicon glyphicon-cloud-upload"> </span> Edit Mock Hosts
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/easy/h5web">
+                                <span class="glyphicon glyphicon-glass"> </span> H5 Web
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/articles/articles">
+                                <span class="glyphicon glyphicon-book"> </span> Articles
+                            </a>
+                        </li>
+
+                    </ul>
+                <ul class="nav navbar-nav navbar-right" style="color:#ADFEDC;">
+                            <li ><a >Sign out</a></li>
+                            <li><a >Sign in</a></li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
