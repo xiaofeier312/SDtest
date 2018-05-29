@@ -28,13 +28,13 @@ def create_db():
 @manager.command
 def init_data():
     p1 = APIProjects()
-    p1.name = '个人中心'
+    p1.name = '个人'
     p2 = APIProjects()
-    p2.name = '企业家'
+    p2.name = '企业'
     m1 = APIModules()
-    m1.name = '个人中心-mobile war'
+    m1.name = '个人中心-mobile w'
     m1.projectID = 1
-    m1.remark = 'module of mobile war'
+    m1.remark = 'module of mobile '
     m2 = APIModules()
     m2.name = 'portal war'
     m2.projectID = 2

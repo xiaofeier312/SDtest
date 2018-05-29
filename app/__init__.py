@@ -19,6 +19,8 @@ def create_app(config_name):
     # flask_admin
     app_admin.init_app(app)
     bootstrap.init_app(app)
+    # set flask admin swatch
+    app.config['FLASK_ADMIN_SWATCH'] = 'cosmo'
 
 
     from .main import main as main_blueprint
@@ -36,8 +38,8 @@ def init_custom_view():
     from app.admin.views import CustomModelView, projectsModelView, modulesModelView,DocModelView,caseModelView,verifyModelView,resultModelView
     from app.models import APIProjects, APIModules, APICases, APIDoc, TomcatEnv, CasesVerify
 
-    app_admin.add_view(projectsModelView(APIProjects, db.session, category='新增'))
     app_admin.add_view(CustomModelView(TomcatEnv, db.session, category='新增'))
+    app_admin.add_view(projectsModelView(APIProjects, db.session, category='新增'))
     app_admin.add_view(modulesModelView(APIModules, db.session, category='新增'))
     app_admin.add_view(DocModelView(APIDoc, db.session, category='新增'))
     app_admin.add_view(caseModelView(APICases, db.session, category='新增'))
