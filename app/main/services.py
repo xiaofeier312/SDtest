@@ -3,7 +3,7 @@ import re
 import requests
 import json
 import difflib
-
+import copy
 
 class SDData(object):
     def get_all_projects(self):
@@ -80,13 +80,32 @@ class SDData(object):
 
 
 
-    def split_text(self,origin_text):
-        """use X.splitlines to transfer to list wherher it is str or list"""
+    def split_text(self, origin_text):
+        """origin should be str or list only.
+            //use X.splitlines to transfer to list wherher it is str or list
+            //splitlines should be deal with list, so we transfer str to list
+            //return list"""
         init_text = []
-        for i in origin_text:
-            init_temp = i.splitlines()
-            init_text += init_temp
-        return init_text
+        if isinstance(origin_text,str):
+            init_text.append(origin_text)
+        elif isinstance(origin_text, list):
+            init_text = copy.deepcopy(origin_text)
+        else:
+            raise TypeError('only support str and list')
+        dealed_text = []
+        for i in init_text:
+            try:
+                s_temp = json.loads(i)
+                s_temp2 = json.dumps(s_temp, indent=4, ensure_ascii=False)
+                s_temp3 = s_temp2.splitlines()
+                for j in s_temp3:
+                    dealed_text.append(j)
+                continue
+            except Exception as e:
+                print('@@@Cannt loads: {}'.format(i))
+                s_temp4 = i
+            dealed_text.append(s_temp4)
+        return dealed_text
 
 
     def format_json_for_differ(self,text):

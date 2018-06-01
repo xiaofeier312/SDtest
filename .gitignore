@@ -5,3 +5,4 @@
 /app/main/__pycache__/
 /migrations/
 /.idea/
+/tests/__pycache__/
