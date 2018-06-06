@@ -26,7 +26,7 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://alimysql:alimysql7933@47.98.133.163/sdauto?charset=utf8'
     SQLALCHEMY_BINDS = {
         # 'mock_data': 'mysql+pymysql://root:adadad1@127.0.0.1:3306/mock?charset=utf8',
-        'mysql_117.226': 'mysql+pymysql://ent_all:ent@172.16.117.226:3306/ent_portal?charset=utf8'
+        # 'mysql_117.226': 'mysql+pymysql://ent_all:ent@172.16.117.226:3306/ent_portal?charset=utf8'
     }
     SQLALCHEMY_ECHO = True # set sql echo = true
 

@@ -4,8 +4,11 @@ import requests
 import json
 import difflib
 import copy
+import time
 
-class SDData(object):
+
+class SDProjectData(object):
+
     def get_all_projects(self):
         """return a list, like ['个人中心', '企业家']"""
         all_project = APIProjects.query.all()
@@ -58,7 +61,7 @@ class SDData(object):
         """run case by single, case_id"""
         case = APICases.query.filter_by(id=case_id).first()
         env = TomcatEnv.query.fileter_by(id=env_id).first()
-        final_url = self.optimize_url(case.url)
+        final_url = self.optimize_url(env + case.url)
         try:
             final_body = json.dumps(case.body)
         except Exception:
@@ -73,20 +76,23 @@ class SDData(object):
             result = json.dumps({'result': 'error occur! error number: 12', 'resultCode': 0})
         return result
 
-    def differ_case_tool(self, old_case_list, new_case_list):
-        """compare case results, make a compare result file,/ only support single case"""
-        old_case_result = self.run_case_id(old_case_list)
-        new_case_result = self.run_case_id(new_case_list)
-
-
+    def run_case_tool(self, old_case_id, new_case_id):
+        """run case//return result list"""
+        print('Run case----')
+        old_case_result = self.run_case_id(old_case_id)
+        new_case_result = self.run_case_id(new_case_id)
+        old_result2 = self.split_text(old_case_result)
+        new_result2 = self.split_text(new_case_result)
+        return [old_result2, new_result2]
 
     def split_text(self, origin_text):
-        """origin should be str or list only.
+        """Input origin should be str or list only.
             //use X.splitlines to transfer to list wherher it is str or list
             //splitlines should be deal with list, so we transfer str to list
+            //Also try to transfer json to json format to displayed humanity
             //return list"""
         init_text = []
-        if isinstance(origin_text,str):
+        if isinstance(origin_text, str):
             init_text.append(origin_text)
         elif isinstance(origin_text, list):
             init_text = copy.deepcopy(origin_text)
@@ -107,26 +113,38 @@ class SDData(object):
             dealed_text.append(s_temp4)
         return dealed_text
 
-
-    def format_json_for_differ(self,text):
-        """format json to display json with spaces, return a list"""
-        init_text = []
-        init_text.append(text)  #deal with text whether it is a list or a string
-        result_list = []
-        init_text=self.split_text(init_text)
-        for i in init_text:
-            init_temp = i.splitlines()
-            init_text += init_temp
-
-        for j in init_text:
-            """try to format json text for look easy"""
-            try:
-                s_temp = json.loads(str(i))
-                s_temp2 = json.dumps(s_temp, indent=4, ensure_ascii=False)
-            except Exception as e:
-                print('@@@Cannt loads: {}'.format(i))
-                s134 = j
-
+    # def format_json_for_differ(self, text):
+    #     """format json to display json with spaces, return a list"""
+    #     init_text = []
+    #     init_text.append(text)  # deal with text whether it is a list or a string
+    #     result_list = []
+    #     init_text = self.split_text(init_text)
+    #     for i in init_text:
+    #         init_temp = i.splitlines()
+    #         init_text += init_temp
+    #
+    #     for j in init_text:
+    #         """try to format json text for look easy"""
+    #         try:
+    #             s_temp = json.loads(str(i))
+    #             s_temp2 = json.dumps(s_temp, indent=4, ensure_ascii=False)
+    #         except Exception as e:
+    #             print('@@@Cannt loads: {}'.format(i))
+    #             s134 = j
 
 
+    def compare_result(self, old_case_id, new_case_id):
+        """compare results and make file"""
+        old_case_obj = APICases.query.filter_by(id=old_case_id).first()
+        new_case_obj = APICases.query.filter_by(id=new_case_id).first()
+        date_str = time.strftime("%m/%d-%H:%M:%S")
+        file_name = date_str + '_Compare_' + old_case_obj.name + '-' + new_case_obj.name + '.html'
 
+        d= difflib.HtmlDiff()
+        f = open('../workResults/'+file_name, 'w')
+
+        results_list = self.run_case_id(old_case_id,new_case_id)
+        f.writelines(d.make_file(results_list[0], results_list[1]))
+        f.close()
+
+        return file_name
