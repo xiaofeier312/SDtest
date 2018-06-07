@@ -13,10 +13,12 @@ from flask import request
 class CustomModelView(ModelView):
     """View function of Flask-Admin for Models page."""
     page_size = 10
+    column_display_pk = True
     form_excluded_columns = ['create_time', 'op_time','modules']  # remove fields from the create and edit forms
 
 class projectsModelView(ModelView):
     """custom view for projects"""
+    column_display_pk = True
     can_view_details = True
     page_size = 10
     column_exclude_list = ['operator', ]
@@ -37,6 +39,7 @@ class newItemAjaxModelLoader(QueryAjaxModelLoader):
 
 class modulesModelView(ModelView):
     """custom view for modules"""
+    column_display_pk = True
     create_modal = True
     edit_modal = True
     form_excluded_columns = ['create_time', 'op_time']
@@ -54,6 +57,7 @@ class modulesModelView(ModelView):
 
 class DocModelView(ModelView):
     """Custom APIDoc view"""
+    column_display_pk = True
     create_modal = True
     edit_modal = True
     form_excluded_columns = ['create_time', 'op_time']
@@ -72,10 +76,11 @@ class DocModelView(ModelView):
 
 class caseModelView(ModelView):
     """Custom API cases view"""
+    column_display_pk = True
     create_modal = True
     edit_modal = True
-    form_excluded_columns = ['create_time', 'op_time','Api_priority', 'is_https', 'http_method', 'http_response' ]
-    form_columns = ('name', 'doc', 'url', 'headers', 'body', 'remark', 'operator')
+    form_excluded_columns = ['create_time', 'op_time','Api_priority', 'is_https', 'http_response' ]
+    form_columns = ('name', 'doc', 'url', 'headers', 'body', 'remark', 'operator', 'http_method')
     # form_ajax_refs = {
     #     'doc': {
     #         'fields': [APIDoc.name],
@@ -91,6 +96,7 @@ class caseModelView(ModelView):
 
 class verifyModelView(ModelView):
     """Custom caseVerify view"""
+    column_display_pk = True
     create_modal = True
     edit_modal = True
     form_excluded_columns = ['create_time', 'op_time']
@@ -104,6 +110,7 @@ class verifyModelView(ModelView):
 
 class resultModelView(ModelView):
     """Custom result view"""
+    column_display_pk = True
     create_modal = True
     edit_modal = True
     form_excluded_columns = ['create_time', 'op_time']

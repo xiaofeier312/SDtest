@@ -4,10 +4,10 @@ from config import config
 from flask_admin import Admin
 from flask_bootstrap import Bootstrap
 
-
 db = SQLAlchemy()
-app_admin = Admin(name='API auto',template_mode='bootstrap3')
+app_admin = Admin(name='API auto', template_mode='bootstrap3')
 bootstrap = Bootstrap()
+
 
 def create_app(config_name):
     """Use factory to product app"""
@@ -15,13 +15,14 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     db.init_app(app)
+    app.config['SQLALCHEMY_POOL_PRE_PING'] = True  # Try to fix auto disconnect bug
+    app.config['SQLALCHEMY_POOL_RECYCLE'] = 1
 
     # flask_admin
     app_admin.init_app(app)
     bootstrap.init_app(app)
     # set flask admin swatch
     app.config['FLASK_ADMIN_SWATCH'] = 'cosmo'
-
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
@@ -31,11 +32,12 @@ def create_app(config_name):
     return app
 
 
-#Add_view
+# Add_view
 def init_custom_view():
     """customModelView for every data class"""
     from app import app_admin
-    from app.admin.views import CustomModelView, projectsModelView, modulesModelView,DocModelView,caseModelView,verifyModelView,resultModelView
+    from app.admin.views import CustomModelView, projectsModelView, modulesModelView, DocModelView, caseModelView, \
+        verifyModelView, resultModelView
     from app.models import APIProjects, APIModules, APICases, APIDoc, TomcatEnv, CasesVerify
 
     app_admin.add_view(CustomModelView(TomcatEnv, db.session, category='新增'))

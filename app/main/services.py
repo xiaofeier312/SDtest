@@ -5,10 +5,9 @@ import json
 import difflib
 import copy
 import time
-
+from app.models import db
 
 class SDProjectData(object):
-
     def get_all_projects(self):
         """return a list, like ['个人中心', '企业家']"""
         all_project = APIProjects.query.all()
@@ -59,31 +58,37 @@ class SDProjectData(object):
 
     def run_case_id(self, case_id, env_id):
         """run case by single, case_id"""
+        db.session.remove()
         case = APICases.query.filter_by(id=case_id).first()
-        env = TomcatEnv.query.fileter_by(id=env_id).first()
-        final_url = self.optimize_url(env + case.url)
+        env = TomcatEnv.query.filter_by(id=env_id).first()
+        final_url = self.optimize_url(env.ip + ':' + str(env.port) +'/' + case.url)
+        # final_headers ->> Should be dict, but it is str in mysql database.
         try:
             final_body = json.dumps(case.body)
         except Exception:
             print("@@Error occur: {} ".format(Exception))
             return json.dumps({'result': 'error occur! error number: 11', 'resultCode': 0})
 
+
+        print('------case.http_method is {}-{}-{}'.format(case.http_method,final_url,case.headers))
         if case.http_method == 'get':
-            result = requests.request(case.http_method, final_url, headers=case.headers)
+            # 1 is get
+            result = requests.request('get', final_url)
         elif case.http_method == 'post':
-            result = requests.request(case.http_method, final_url, headers=case.headers, data=final_body)
+            # 2 is post
+            result = requests.request('post', final_url, data=final_body)
         else:
             result = json.dumps({'result': 'error occur! error number: 12', 'resultCode': 0})
-        return result
+        return result.text
 
-    def run_case_tool(self, old_case_id, new_case_id):
+    def run_case_tool(self, case_id, old_env, new_env):
         """run case//return result list"""
         print('Run case----')
-        old_case_result = self.run_case_id(old_case_id)
-        new_case_result = self.run_case_id(new_case_id)
-        old_result2 = self.split_text(old_case_result)
-        new_result2 = self.split_text(new_case_result)
-        return [old_result2, new_result2]
+        old_env_result = self.run_case_id(case_id, old_env)
+        new_env_result = self.run_case_id(case_id, new_env)
+        old_result2 = self.split_text(old_env_result)
+        new_result2 = self.split_text(new_env_result)
+        return {'old':old_result2, 'new':new_result2}
 
     def split_text(self, origin_text):
         """Input origin should be str or list only.
@@ -140,10 +145,10 @@ class SDProjectData(object):
         date_str = time.strftime("%m/%d-%H:%M:%S")
         file_name = date_str + '_Compare_' + old_case_obj.name + '-' + new_case_obj.name + '.html'
 
-        d= difflib.HtmlDiff()
-        f = open('../workResults/'+file_name, 'w')
+        d = difflib.HtmlDiff()
+        f = open('../workResults/' + file_name, 'w')
 
-        results_list = self.run_case_id(old_case_id,new_case_id)
+        results_list = self.run_case_id(old_case_id, new_case_id)
         f.writelines(d.make_file(results_list[0], results_list[1]))
         f.close()
 

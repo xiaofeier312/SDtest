@@ -66,7 +66,7 @@ class APIDoc(db.Model):
 
 
 class APICases(db.Model):
-    """http_method: 1 get/2 post/3 del/4 put...
+    """http_method: 1 get//2 post//3 del//4 put...
      ..Change http_method to string field for using requests module easily"""
     __tablename__ = 'api_cases'
     id = db.Column(db.Integer, primary_key=True)
