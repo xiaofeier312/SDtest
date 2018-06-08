@@ -1,4 +1,4 @@
-from app.models import APIProjects, APIModules, APIDoc, APICases, TomcatEnv
+from app.models import APIProjects, APIModules, APIDoc, APICases, TomcatEnv, ReplaceInfo,ParameterData
 import re
 import requests
 import json
@@ -9,6 +9,7 @@ from app.models import db
 
 
 class SDProjectData(object):
+    """Project Data class"""
     def get_all_projects(self):
         """return a list, like ['个人中心', '企业家']"""
         all_project = APIProjects.query.all()
@@ -146,24 +147,6 @@ class SDProjectData(object):
             dealed_text.append(s_temp4)
         return dealed_text
 
-    # def format_json_for_differ(self, text):
-    #     """format json to display json with spaces, return a list"""
-    #     init_text = []
-    #     init_text.append(text)  # deal with text whether it is a list or a string
-    #     result_list = []
-    #     init_text = self.split_text(init_text)
-    #     for i in init_text:
-    #         init_temp = i.splitlines()
-    #         init_text += init_temp
-    #
-    #     for j in init_text:
-    #         """try to format json text for look easy"""
-    #         try:
-    #             s_temp = json.loads(str(i))
-    #             s_temp2 = json.dumps(s_temp, indent=4, ensure_ascii=False)
-    #         except Exception as e:
-    #             print('@@@Cannt loads: {}'.format(i))
-    #             s134 = j
 
     def get_new_file_name(self, case_id, old_env, new_env):
         """return a new case name"""
@@ -182,5 +165,64 @@ class SDProjectData(object):
         print('>>results_list: {}'.format(results_list))
         f.writelines(d.make_file(results_list['old'], results_list['new']))
         f.close()
-
         return file_name
+
+
+    """
+    compare cases with many parameters, using json path
+    """
+    def get_parameters_list_in_replace(self,replace_id):
+        parameter_obj = ParameterData.query.filter_by(replace_id).first()
+        parameters = parameter_obj.dataList
+        parameters_list = parameters.split(',')
+        return parameters_list
+
+
+    def assemble_body_parameter(self, case_id = 0, parameter_id =0, replace_id=''):
+        """replace the value in json path  with parameters, return body_results"""
+        if case_id == 0 or parameter_id == 0 or replace_id == '':
+            return "error 14, parameter cannot be null"
+        else:
+            case = self.get_case_obj_by_case_id(case_id)
+            case_id = case.id
+            case_body = case.body
+            body_dict = self.transfer_body_to_dict(case_body)
+            body_result = []
+            parameters_list = self.get_parameters_list_in_replace(parameter_id)
+
+
+            for i in body_dict:
+                for j in parameters_list:
+                    body_result.append()   #replace the value in json path  with parameters, return body_results
+
+
+    def compare_single_with_parameters(self,case_id,parameter_list,old_env, new_env):
+        pass
+
+    def run_case_with_parameters(self, case_id, env_id, parameter_id):
+        """run case with different parameters"""
+        db.session.remove()
+        case = APICases.query.filter_by(id=case_id).first()
+        env = TomcatEnv.query.filter_by(id=env_id).first()
+        final_url = self.optimize_url(env.ip + ':' + str(env.port) + '/' + case.url)
+        body_dict = self.transfer_body_to_dict(case)
+        # final_headers ->> Should be dict, but it is str in mysql database.
+        try:
+            final_body = json.dumps(case.body)
+        except Exception:
+            print("@@Error occur: {} ".format(Exception))
+            return json.dumps({'result': 'error occur! error number: 15', 'resultCode': 0})
+
+        print('------case.http_method is {}-{}-{}'.format(case.http_method, final_url, case.headers))
+        if case.http_method == 'get':
+            # 1 is get
+            result = requests.request('get', final_url, data=body_dict)
+        elif case.http_method == 'post':
+            # 2 is post
+            print('--post func')
+            result = requests.request('post', final_url, params=body_dict)
+            print('--case.body:{}=='.format(case.body))
+        else:
+            result = json.dumps({'result': 'error occur! error number: 16', 'resultCode': 0})
+            return result
+        return result

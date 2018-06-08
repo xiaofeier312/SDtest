@@ -33,7 +33,7 @@ class APIModules(db.Model):
     project = db.relationship(APIProjects, backref='modules')
 
     def __repr__(self):
-        #return '%r, <project_id> %r' % (self.name, self.projectID)
+        # return '%r, <project_id> %r' % (self.name, self.projectID)
         return '{}'.format(self.name)
 
         # object_APIName = db.relationship('APIDoc', backref='modules')
@@ -45,9 +45,9 @@ class APIDoc(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False, unique=False)
     moduleID = db.Column(db.Integer, db.ForeignKey('modules.id'), nullable=False)
-    #type = db.Column(db.Integer, nullable=True)  # 0 is http, 1 is RPC
+    # type = db.Column(db.Integer, nullable=True)  # 0 is http, 1 is RPC
     Api_priority = db.Column(db.Integer)
-    path = db.Column(db.String(512))  #only contain path, NOT contain IP,Port
+    path = db.Column(db.String(512))  # only contain path, NOT contain IP,Port
     is_https = db.Column(db.Integer, nullable=True, default=0)
     http_method = db.Column(db.String(16), nullable=False)  # get, post, put
     headers = db.Column(db.Text, nullable=True, default='Content-Type:application/json;charset=utf-8')
@@ -145,6 +145,33 @@ class TomcatEnv(db.Model):
     ip = db.Column(db.String(256), nullable=False)
     port = db.Column(db.Integer, nullable=False)
     tomcatName = db.Column(db.String(64), nullable=True)
+    remark = db.Column(db.String(64), nullable=True)
+    create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
+    operator = db.Column(db.String(64), nullable=True)
+    op_time = db.Column(db.DateTime, nullable=True,
+                        server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+
+
+class ParameterData(db.Model):
+    """Case parameters saved in here"""
+    __tablename__ = 'parameter_data'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), nullable=False)
+    dataList = db.Column(db.text)
+    remark = db.Column(db.String(64), nullable=True)
+    create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
+    operator = db.Column(db.String(64), nullable=True)
+    op_time = db.Column(db.DateTime, nullable=True,
+                        server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+
+class ReplaceInfo(db.Model):
+    """replace json path value with parameter"""
+    __talbename__ = 'replace_info'
+    __tablename__ = 'parameter_data'
+    id = db.Column(db.Integer, primary_key=True)
+    # name = db.Column(db.String(128), nullable=False) # this data didn't need name for simply using.
+    json_path = db.Column(db.String(256),nullable=False)    # e.g. $.userId
+    replace_key = db.Column(db.String(64),nullable=False)  # e.g. data
     remark = db.Column(db.String(64), nullable=True)
     create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
     operator = db.Column(db.String(64), nullable=True)
