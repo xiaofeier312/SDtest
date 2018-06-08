@@ -16,6 +16,7 @@ def create_app(config_name):
     config[config_name].init_app(app)
     db.init_app(app)
     app.config['SQLALCHEMY_POOL_PRE_PING'] = True  # Try to fix auto disconnect bug
+    app.config['pool_pre_ping'] = True
     app.config['SQLALCHEMY_POOL_RECYCLE'] = 1
 
     # flask_admin
