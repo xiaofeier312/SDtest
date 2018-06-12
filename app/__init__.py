@@ -39,7 +39,7 @@ def init_custom_view():
     from app import app_admin
     from app.admin.views import CustomModelView, projectsModelView, modulesModelView, DocModelView, caseModelView, \
         verifyModelView, resultModelView
-    from app.models import APIProjects, APIModules, APICases, APIDoc, TomcatEnv, CasesVerify
+    from app.models import APIProjects, APIModules, APICases, APIDoc, TomcatEnv, CasesVerify,ParameterData, ReplaceInfo
 
     app_admin.add_view(CustomModelView(TomcatEnv, db.session, category='新增'))
     app_admin.add_view(projectsModelView(APIProjects, db.session, category='新增'))
@@ -47,4 +47,6 @@ def init_custom_view():
     app_admin.add_view(DocModelView(APIDoc, db.session, category='新增'))
     app_admin.add_view(caseModelView(APICases, db.session, category='新增'))
     app_admin.add_view(verifyModelView(CasesVerify, db.session, category='新增'))
-    app_admin.add_view(verifyModelView(CasesVerify, db.session, endpoint='ss'))
+    app_admin.add_view(CustomModelView(ParameterData, db.session, category='新增'))
+    app_admin.add_view(CustomModelView(ReplaceInfo, db.session, category='新增'))
+    app_admin.add_view(CustomModelView(ReplaceInfo, db.session, endpoint='新增2'))

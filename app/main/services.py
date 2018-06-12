@@ -6,6 +6,7 @@ import difflib
 import copy
 import time
 from app.models import db
+import jsonpath
 
 
 class SDProjectData(object):
@@ -63,9 +64,22 @@ class SDProjectData(object):
         return form_url
 
     def transfer_body_to_dict(self, case_obj):
-        """ Transfer str>"data={'a':1}" to dict {"data":"{'a':1}}
+        """ Transfer str>"data={'a':1}" to list>> {"data":"{'a':1}}
         //return a dict"""
         str_body = case_obj.body
+        divsion_semi = str_body.split(';')
+        dict_body = {}
+        for i in divsion_semi:
+            first_key = i.split('=', 1)[0]
+            second_value = i.split('=', 1)[1]
+            dict_body[first_key] = second_value
+        return dict_body
+
+    def transfer_body_to_dict_not_contain_data_string(self, case_id):
+        """ Transfer str>"data={'a':1}" to list>> {"data":"{'a':1}}
+        //return a dict"""
+        case = self.get_case_obj_by_case_id(case_id)
+        str_body = case.body
         divsion_semi = str_body.split(';')
         dict_body = {}
         for i in divsion_semi:
@@ -82,21 +96,22 @@ class SDProjectData(object):
         final_url = self.optimize_url(env.ip + ':' + str(env.port) + '/' + case.url)
         body_dict = self.transfer_body_to_dict(case)
         # final_headers ->> Should be dict, but it is str in mysql database.
-        try:
-            final_body = json.dumps(case.body)
-        except Exception:
-            print("@@Error occur: {} ".format(Exception))
-            return json.dumps({'result': 'error occur! error number: 11', 'resultCode': 0})
+        # try:
+        #     final_body = json.dumps(case.body)
+        # except Exception:
+        #     print("@@Error occur: {} ".format(Exception))
+        #     return json.dumps({'result': 'error occur! error number: 11', 'resultCode': 0})
 
         print('------case.http_method is {}-{}-{}'.format(case.http_method, final_url, case.headers))
         if case.http_method == 'get':
             # 1 is get
-            result = requests.request('get', final_url, data=body_dict)
+            result = requests.request('get', final_url, params=case.body)
         elif case.http_method == 'post':
             # 2 is post
             print('--post func')
             result = requests.request('post', final_url, params=body_dict)
-            print('--case.body:{}=='.format(case.body))
+            print('--case.body:{}--'.format(body_dict))
+            print('--result.request.url:{}--'.format(result.request.url))
         else:
             result = json.dumps({'result': 'error occur! error number: 12', 'resultCode': 0})
             return result
@@ -171,8 +186,9 @@ class SDProjectData(object):
     """
     compare cases with many parameters, using json path
     """
-    def get_parameters_list_in_replace(self,replace_id):
-        parameter_obj = ParameterData.query.filter_by(replace_id).first()
+    def get_parameters_list(self,replace_id):
+        """return a list: e.g. userIdList: 701981,2,1302,  func will split the data to a list"""
+        parameter_obj = ParameterData.query.filter_by(id=replace_id).first()
         parameters = parameter_obj.dataList
         parameters_list = parameters.split(',')
         return parameters_list
@@ -186,20 +202,30 @@ class SDProjectData(object):
             case = self.get_case_obj_by_case_id(case_id)
             case_id = case.id
             case_body = case.body
-            body_dict = self.transfer_body_to_dict(case_body)
+            body_dict = self.transfer_body_to_dict(case)
             body_result = []
-            parameters_list = self.get_parameters_list_in_replace(parameter_id)
+            parameters_list = self.get_parameters_list(parameter_id)
 
+            replace_jsonpath_obj = ReplaceInfo.query.filter_by(id=replace_id).first()
+            replace_jsonpath_path = replace_jsonpath_obj.json_path
+            json_path_to_dict_index = jsonpath.jsonpath(body_dict['data'],replace_jsonpath_path,result_type='PATH') # like  "$.foo[0].baz"
 
-            for i in body_dict:
-                for j in parameters_list:
-                    body_result.append()   #replace the value in json path  with parameters, return body_results
+            if not json_path_to_dict_index:
+                raise Exception('Error16, cannot find the jsonpath in case body!')
+
+            exec_str1 = 'body_dict'+ json_path_to_dict_index[0].replace('$','',result_type='PATH')
+
+            for i in parameters_list:
+                exec_str2 = exec_str1 + '=' + str(parameters_list[i])
+                exec(exec_str2)
+                body_result.append(body_dict)
+            return body_result
 
 
     def compare_single_with_parameters(self,case_id,parameter_list,old_env, new_env):
-        pass
+        raise NotImplementedError
 
-    def run_case_with_parameters(self, case_id, env_id, parameter_id):
+    def run_case_with_parameters(self, case_id, env_id, parameter_id,replace_id):
         """run case with different parameters"""
         db.session.remove()
         case = APICases.query.filter_by(id=case_id).first()

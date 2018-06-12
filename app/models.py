@@ -157,7 +157,7 @@ class ParameterData(db.Model):
     __tablename__ = 'parameter_data'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
-    dataList = db.Column(db.text)
+    dataList = db.Column(db.Text)
     remark = db.Column(db.String(64), nullable=True)
     create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
     operator = db.Column(db.String(64), nullable=True)
@@ -167,7 +167,6 @@ class ParameterData(db.Model):
 class ReplaceInfo(db.Model):
     """replace json path value with parameter"""
     __talbename__ = 'replace_info'
-    __tablename__ = 'parameter_data'
     id = db.Column(db.Integer, primary_key=True)
     # name = db.Column(db.String(128), nullable=False) # this data didn't need name for simply using.
     json_path = db.Column(db.String(256),nullable=False)    # e.g. $.userId
