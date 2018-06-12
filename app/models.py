@@ -151,6 +151,9 @@ class TomcatEnv(db.Model):
     op_time = db.Column(db.DateTime, nullable=True,
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
+    def __repr__(self):
+        return '{}'.format(self.name)
+
 
 class ParameterData(db.Model):
     """Case parameters saved in here"""
@@ -164,15 +167,38 @@ class ParameterData(db.Model):
     op_time = db.Column(db.DateTime, nullable=True,
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
+    def __repr__(self):
+        return '{}'.format(self.name)
+
+
 class ReplaceInfo(db.Model):
     """replace json path value with parameter"""
     __talbename__ = 'replace_info'
     id = db.Column(db.Integer, primary_key=True)
     # name = db.Column(db.String(128), nullable=False) # this data didn't need name for simply using.
-    json_path = db.Column(db.String(256),nullable=False)    # e.g. $.userId
-    replace_key = db.Column(db.String(64),nullable=False)  # e.g. data
+    json_path = db.Column(db.String(256), nullable=False)  # e.g. $.userId
+    replace_key = db.Column(db.String(64), nullable=False)  # e.g. data
     remark = db.Column(db.String(64), nullable=True)
     create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
     operator = db.Column(db.String(64), nullable=True)
     op_time = db.Column(db.DateTime, nullable=True,
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+
+    def __repr__(self):
+        return '{}__{}'.format(self.json_path, self.replace_key)
+
+
+class RunCase(db.Model):
+    __tablename__ = 'run_case'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), nullable=True)
+    case_id = db.Column(db.Integer, db.ForeignKey('api_cases.id'), nullable=False)
+    old_env_id = db.Column(db.Integer, db.ForeignKey('tomcat_env.id'), nullable=False)
+    new_env_id = db.Column(db.Integer, db.ForeignKey('tomcat_env.id'), nullable=False)
+    replace_id = db.Column(db.Integer, db.ForeignKey('replace_info.id'), nullable=False)
+    paramter_list_id = db.Column(db.Integer, db.ForeignKey('paramter_data.id'), nullable=False)
+    result_file = db.Column(db.String(128), nullable=True)
+    replace = db.relationship(ReplaceInfo, backref='runcase')
+    paramter_list = db.relationship(ParameterData, backref='runcase')
+    create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
+    operator = db.Column(db.String(64), nullable=True)

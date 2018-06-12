@@ -1,4 +1,5 @@
 from app.main.services import SDProjectData as SD
+from app.main.services import ResultFile as RF
 import unittest
 from app import db
 
@@ -8,6 +9,7 @@ class MainServicesTestCase(unittest.TestCase):
         self.testList = ['zzlist','xx','3']
         self.testJson = '{"aaJson":1,"bb":"zb"}'
         self.sd = SD()
+        self.rf = RF()
 
     def tearDown(self):
         db.session.remove()
@@ -28,3 +30,13 @@ class MainServicesTestCase(unittest.TestCase):
         result = self.sd.get_parameters_list(1)
         self.assertIsInstance(result,list,'return list')
         self.assertIn('705981',result, 'return 705981 not in list')
+
+    def test_main_service_get_files(self):
+        result = self.rf.get_files()
+        self.assertIsNotNone(result,'Didnot get any files')
+
+
+
+
+
+

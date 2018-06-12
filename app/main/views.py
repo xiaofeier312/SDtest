@@ -41,5 +41,10 @@ def url_for_all():
     url_list.append(url_for('main.run_extends', _external=True))
     url_list.append(url_for('main.test_run_cases', _external=True))
     url_list.append(url_for('main.compare_all',_external=True))
+    url_list.append(url_for('main.compare_test',_external=True))
 
     return render_template('main_templates/urls.html', url_list=url_list)
+
+@main.route('/compare_test')
+def compare_test():
+    return render_template('main_templates/compare_cases.html')

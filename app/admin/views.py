@@ -8,6 +8,7 @@ from flask_admin.contrib.sqla.ajax import QueryAjaxModelLoader
 from app import db
 from wtforms import form, fields, validators, widgets
 from flask import request
+from flask_admin.model.template import EndpointLinkRowAction, LinkRowAction
 
 
 class CustomModelView(ModelView):
@@ -116,7 +117,12 @@ class resultModelView(ModelView):
     form_excluded_columns = ['create_time', 'op_time']
     form_columns = ('task_id','case','result')
 
-
+class runCaseModelView(ModelView):
+    """Custom runCaseModelView"""
+    column_extra_row_actions = [
+        LinkRowAction('glyphicon glyphicon-sunglasses', 'http://www.baidu.com'),
+        EndpointLinkRowAction('glyphicon glyphicon-film', 'file.index_view')
+    ]
 
 
 

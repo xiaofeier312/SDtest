@@ -8,6 +8,7 @@ import time
 from app.models import db
 import jsonpath
 from copy import deepcopy
+import os
 
 
 class SDProjectData(object):
@@ -287,3 +288,21 @@ class SDProjectData(object):
         f.writelines(d.make_file(split_result_old, split_result_new))
         f.close()
         return file_name
+
+
+class ResultFile(object):
+    """Deal result files"""
+    def __init__(self):
+        self.work_folder = './workResults/'
+
+    def get_files(self):
+        if os.path.exists(self.work_folder):
+            f_list = os.listdir(self.work_folder)
+            file_list = []
+            for i in f_list:
+                if os.path.isfile(self.work_folder+i):
+                    file_list.append(i)
+            return file_list
+        else:
+            return "Error 101, cannot find folder"
+
