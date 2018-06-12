@@ -1,5 +1,6 @@
 from app.main.services import SDProjectData as SD
 import unittest
+from app import db
 
 class MainServicesTestCase(unittest.TestCase):
     def setUp(self):
@@ -9,7 +10,7 @@ class MainServicesTestCase(unittest.TestCase):
         self.sd = SD()
 
     def tearDown(self):
-        pass
+        db.session.remove()
 
     def test_main_service_split_text_str(self):
         result_str = self.sd.split_text(self.testStr)
@@ -26,4 +27,4 @@ class MainServicesTestCase(unittest.TestCase):
     def test_main_service_get_parameters_list(self):
         result = self.sd.get_parameters_list(1)
         self.assertIsInstance(result,list,'return list')
-        self.assertIn('7059810',result, 'return 705981 not in list')
+        self.assertIn('705981',result, 'return 705981 not in list')

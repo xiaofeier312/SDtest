@@ -26,7 +26,7 @@ def create_app(config_name):
     app.config['FLASK_ADMIN_SWATCH'] = 'cosmo'
 
     from .main import main as main_blueprint
-    app.register_blueprint(main_blueprint)
+    app.register_blueprint(main_blueprint, url_prefix='/main')
 
     init_custom_view()  # !!!When first create DB, comment this. or it will occur exception: cannot find table XXX
     print('^_^ APP is created ^_^')

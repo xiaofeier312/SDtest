@@ -1,4 +1,4 @@
-from app.models import APIProjects, APIModules, APIDoc, APICases, TomcatEnv, ReplaceInfo,ParameterData
+from app.models import APIProjects, APIModules, APIDoc, APICases, TomcatEnv, ReplaceInfo, ParameterData
 import re
 import requests
 import json
@@ -7,10 +7,12 @@ import copy
 import time
 from app.models import db
 import jsonpath
+from copy import deepcopy
 
 
 class SDProjectData(object):
     """Project Data class"""
+
     def get_all_projects(self):
         """return a list, like ['个人中心', '企业家']"""
         all_project = APIProjects.query.all()
@@ -128,7 +130,7 @@ class SDProjectData(object):
         case_body = self.get_case_obj_by_case_id(case_id).body
         # Add case id, name to compare results page
         old_result2.insert(0, 'Case_id_' + str(case_id) + '_name_' + case_name)
-        new_result2.insert(0, 'Case_id_' + str(case_id) + '_name_' +  case_name)
+        new_result2.insert(0, 'Case_id_' + str(case_id) + '_name_' + case_name)
         # Add case parameter
         old_result2.insert(1, 'Case_parameter_' + case_body)
         new_result2.insert(1, 'Case_parameter_' + case_body)
@@ -162,7 +164,6 @@ class SDProjectData(object):
             dealed_text.append(s_temp4)
         return dealed_text
 
-
     def get_new_file_name(self, case_id, old_env, new_env):
         """return a new case name"""
         date_str = time.strftime("%m-%d-%H:%M:%S")
@@ -182,50 +183,57 @@ class SDProjectData(object):
         f.close()
         return file_name
 
-
     """
     compare cases with many parameters, using json path
     """
-    def get_parameters_list(self,replace_id):
+
+    def get_parameters_list(self, replace_id):
         """return a list: e.g. userIdList: 701981,2,1302,  func will split the data to a list"""
         parameter_obj = ParameterData.query.filter_by(id=replace_id).first()
         parameters = parameter_obj.dataList
         parameters_list = parameters.split(',')
         return parameters_list
 
-
-    def assemble_body_parameter(self, case_id = 0, parameter_id =0, replace_id=''):
+    def assemble_body_parameter(self, case_id=0, parameter_id=0, replace_id=''):
         """replace the value in json path  with parameters, return body_results"""
         if case_id == 0 or parameter_id == 0 or replace_id == '':
             return "error 14, parameter cannot be null"
         else:
+            replace_jsonpath_obj = ReplaceInfo.query.filter_by(id=replace_id).first()
+            replace_jsonpath_path = replace_jsonpath_obj.json_path
+
             case = self.get_case_obj_by_case_id(case_id)
             case_id = case.id
             case_body = case.body
             body_dict = self.transfer_body_to_dict(case)
+            body_dict[replace_jsonpath_obj.replace_key] = json.loads(
+                body_dict[replace_jsonpath_obj.replace_key].replace("'", '"')) #e.g. find {'a':1} for dealing the value in {'data':{'a':1}}
             body_result = []
             parameters_list = self.get_parameters_list(parameter_id)
 
-            replace_jsonpath_obj = ReplaceInfo.query.filter_by(id=replace_id).first()
-            replace_jsonpath_path = replace_jsonpath_obj.json_path
-            json_path_to_dict_index = jsonpath.jsonpath(body_dict['data'],replace_jsonpath_path,result_type='PATH') # like  "$.foo[0].baz"
+            json_value_of_key = body_dict[replace_jsonpath_obj.replace_key]
+            json_path_to_dict_index = jsonpath.jsonpath(json_value_of_key, replace_jsonpath_path,
+                                                        result_type='PATH')  # like  "$.foo[0].baz"
 
             if not json_path_to_dict_index:
                 raise Exception('Error16, cannot find the jsonpath in case body!')
 
-            exec_str1 = 'body_dict'+ json_path_to_dict_index[0].replace('$','',result_type='PATH')
+            exec_str1 = 'body_dict' + "['" + str(replace_jsonpath_obj.replace_key) + "']" + json_path_to_dict_index[
+                0].replace('$', '')
 
+            body_dict_has_string = deepcopy(body_dict)
             for i in parameters_list:
-                exec_str2 = exec_str1 + '=' + str(parameters_list[i])
+                exec_str2 = exec_str1 + '=' + str(i)
                 exec(exec_str2)
-                body_result.append(body_dict)
+                body_dict_has_string[replace_jsonpath_obj.replace_key] = str(body_dict[replace_jsonpath_obj.replace_key])
+                body_result.append(deepcopy(body_dict_has_string))
+
             return body_result
 
-
-    def compare_single_with_parameters(self,case_id,parameter_list,old_env, new_env):
+    def compare_single_with_parameters(self, case_id, parameter_list, old_env, new_env):
         raise NotImplementedError
 
-    def run_case_with_parameters(self, case_id, env_id, parameter_id,replace_id):
+    def run_case_with_parameters(self, case_id, env_id, parameter_id, replace_id):
         """run case with different parameters"""
         db.session.remove()
         case = APICases.query.filter_by(id=case_id).first()
@@ -233,22 +241,49 @@ class SDProjectData(object):
         final_url = self.optimize_url(env.ip + ':' + str(env.port) + '/' + case.url)
         body_dict = self.transfer_body_to_dict(case)
         # final_headers ->> Should be dict, but it is str in mysql database.
-        try:
-            final_body = json.dumps(case.body)
-        except Exception:
-            print("@@Error occur: {} ".format(Exception))
-            return json.dumps({'result': 'error occur! error number: 15', 'resultCode': 0})
 
+        body_dict_with_parameters = self.assemble_body_parameter(case_id,parameter_id,replace_id)
+
+        #
+        # try:
+        #     final_body = json.dumps(case.body)
+        # except Exception:
+        #     print("@@Error occur: {} ".format(Exception))
+        #     return json.dumps({'result': 'error occur! error number: 15', 'resultCode': 0})
+
+        all_results = []
         print('------case.http_method is {}-{}-{}'.format(case.http_method, final_url, case.headers))
-        if case.http_method == 'get':
-            # 1 is get
-            result = requests.request('get', final_url, data=body_dict)
-        elif case.http_method == 'post':
-            # 2 is post
-            print('--post func')
-            result = requests.request('post', final_url, params=body_dict)
-            print('--case.body:{}=='.format(case.body))
-        else:
-            result = json.dumps({'result': 'error occur! error number: 16', 'resultCode': 0})
-            return result
-        return result
+        for i in body_dict_with_parameters:
+            if case.http_method == 'get':
+                # 1 is get
+                result = requests.request('get', final_url, params=i)
+            elif case.http_method == 'post':
+                # 2 is post
+                print('--post func')
+                result = requests.request('post', final_url, params=i)
+                print('--case.body:{}=='.format(i))
+            else:
+                result = json.dumps({'result': 'error occur! error number: 16', 'resultCode': 0})
+                return result
+            all_results.append('Case ID:' + str(case_id))
+            all_results.append(str(i))
+            all_results.append(deepcopy(result.text))
+        return all_results
+
+
+    def compare_all_results(self, case_id, old_env, new_env, parameter_id, replace_id):
+        """compare results and make file"""
+        file_name = self.get_new_file_name(case_id, old_env, new_env)
+
+        d = difflib.HtmlDiff()
+        f = open('./workResults/' + file_name, 'w')
+
+        #results_list = self.run_case_tool(case_id, old_env, new_env)
+        results_old = self.run_case_with_parameters(case_id,old_env,parameter_id,replace_id)
+        split_result_old = self.split_text(results_old)
+        results_new = self.run_case_with_parameters(case_id,new_env,parameter_id,replace_id)
+        split_result_new = self.split_text(results_new)
+        print('>>run all cases')
+        f.writelines(d.make_file(split_result_old, split_result_new))
+        f.close()
+        return file_name
