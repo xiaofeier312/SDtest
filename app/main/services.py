@@ -1,4 +1,4 @@
-from app.models import APIProjects, APIModules, APIDoc, APICases, TomcatEnv, ReplaceInfo, ParameterData
+from app.models import APIProjects, APIModules, APIDoc, APICases, TomcatEnv, ReplaceInfo, ParameterData, RunCase
 import re
 import requests
 import json
@@ -208,7 +208,8 @@ class SDProjectData(object):
             case_body = case.body
             body_dict = self.transfer_body_to_dict(case)
             body_dict[replace_jsonpath_obj.replace_key] = json.loads(
-                body_dict[replace_jsonpath_obj.replace_key].replace("'", '"')) #e.g. find {'a':1} for dealing the value in {'data':{'a':1}}
+                body_dict[replace_jsonpath_obj.replace_key].replace("'",
+                                                                    '"'))  # e.g. find {'a':1} for dealing the value in {'data':{'a':1}}
             body_result = []
             parameters_list = self.get_parameters_list(parameter_id)
 
@@ -226,7 +227,8 @@ class SDProjectData(object):
             for i in parameters_list:
                 exec_str2 = exec_str1 + '=' + str(i)
                 exec(exec_str2)
-                body_dict_has_string[replace_jsonpath_obj.replace_key] = str(body_dict[replace_jsonpath_obj.replace_key])
+                body_dict_has_string[replace_jsonpath_obj.replace_key] = str(
+                    body_dict[replace_jsonpath_obj.replace_key])
                 body_result.append(deepcopy(body_dict_has_string))
 
             return body_result
@@ -243,7 +245,7 @@ class SDProjectData(object):
         body_dict = self.transfer_body_to_dict(case)
         # final_headers ->> Should be dict, but it is str in mysql database.
 
-        body_dict_with_parameters = self.assemble_body_parameter(case_id,parameter_id,replace_id)
+        body_dict_with_parameters = self.assemble_body_parameter(case_id, parameter_id, replace_id)
 
         #
         # try:
@@ -271,7 +273,6 @@ class SDProjectData(object):
             all_results.append(deepcopy(result.text))
         return all_results
 
-
     def compare_all_results(self, case_id, old_env, new_env, parameter_id, replace_id):
         """compare results and make file"""
         file_name = self.get_new_file_name(case_id, old_env, new_env)
@@ -279,19 +280,25 @@ class SDProjectData(object):
         d = difflib.HtmlDiff()
         f = open('./workResults/' + file_name, 'w')
 
-        #results_list = self.run_case_tool(case_id, old_env, new_env)
-        results_old = self.run_case_with_parameters(case_id,old_env,parameter_id,replace_id)
+        # results_list = self.run_case_tool(case_id, old_env, new_env)
+        results_old = self.run_case_with_parameters(case_id, old_env, parameter_id, replace_id)
         split_result_old = self.split_text(results_old)
-        results_new = self.run_case_with_parameters(case_id,new_env,parameter_id,replace_id)
+        results_new = self.run_case_with_parameters(case_id, new_env, parameter_id, replace_id)
         split_result_new = self.split_text(results_new)
         print('>>run all cases')
         f.writelines(d.make_file(split_result_old, split_result_new))
         f.close()
         return file_name
 
+    def compare_by_run_case_id(self, run_id):
+        r = RunCase.query.filter_by(id=run_id).first()
+        file_name = self.compare_all_results(r.case_id, r.old_env_id, r.new_env_id, r.paramter_list.id, r.replace_id)
+        return file_name
+
 
 class ResultFile(object):
     """Deal result files"""
+
     def __init__(self):
         self.work_folder = './workResults/'
 
@@ -300,9 +307,8 @@ class ResultFile(object):
             f_list = os.listdir(self.work_folder)
             file_list = []
             for i in f_list:
-                if os.path.isfile(self.work_folder+i):
+                if os.path.isfile(self.work_folder + i):
                     file_list.append(i)
             return file_list
         else:
             return "Error 101, cannot find folder"
-

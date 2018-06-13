@@ -82,12 +82,6 @@ class caseModelView(ModelView):
     edit_modal = True
     form_excluded_columns = ['create_time', 'op_time','Api_priority', 'is_https', 'http_response' ]
     form_columns = ('name', 'doc', 'url', 'headers', 'body', 'remark', 'operator', 'http_method')
-    # form_ajax_refs = {
-    #     'doc': {
-    #         'fields': [APIDoc.name],
-    #         'pagesize': 10
-    #     }
-    # }
     form_choices = {
         'Api_priority':[('1','1'),('2','2'),('3','3')],
         'http_method':[('get','get'),('post','post'),('put','put')]
@@ -102,12 +96,7 @@ class verifyModelView(ModelView):
     edit_modal = True
     form_excluded_columns = ['create_time', 'op_time']
     form_columns = ('case','verify_path','verify_expect','verify_method','set_up','set_down','operator')
-    # form_ajax_refs = {
-    #     'case':{
-    #         'fields':[APICases.name],
-    #         'pagesize': 10
-    #     }
-    # }
+
 
 class resultModelView(ModelView):
     """Custom result view"""
@@ -119,9 +108,13 @@ class resultModelView(ModelView):
 
 class runCaseModelView(ModelView):
     """Custom runCaseModelView"""
+    column_display_pk = True
+    create_modal = True
+    edit_modal = True
+    form_excluded_columns = ['create_time', 'op_time']
     column_extra_row_actions = [
-        LinkRowAction('glyphicon glyphicon-sunglasses', 'http://www.baidu.com'),
-        EndpointLinkRowAction('glyphicon glyphicon-film', 'file.index_view')
+        LinkRowAction('glyphicon glyphicon-sunglasses', 'http://127.0.0.1:5000/main/compare_run/{row_id}'),
+        # EndpointLinkRowAction('glyphicon glyphicon-film', 'apimodules.index_view')
     ]
 
 

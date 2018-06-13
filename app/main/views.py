@@ -28,10 +28,12 @@ def test_run_cases():
     result_display = str(result)
     return result_display
 
+
 @main.route('/compare_all')
 def compare_all():
-    result = SD().compare_all_results(2,1,2,1,1)
+    result = SD().compare_all_results(2, 1, 2, 1, 1)
     return result
+
 
 @main.route('/')
 def url_for_all():
@@ -40,11 +42,18 @@ def url_for_all():
     url_list.insert(0, url_for('main.test_hello', _external=True))
     url_list.append(url_for('main.run_extends', _external=True))
     url_list.append(url_for('main.test_run_cases', _external=True))
-    url_list.append(url_for('main.compare_all',_external=True))
-    url_list.append(url_for('main.compare_test',_external=True))
+    url_list.append(url_for('main.compare_all', _external=True))
+    url_list.append(url_for('main.compare_test', _external=True))
 
     return render_template('main_templates/urls.html', url_list=url_list)
+
 
 @main.route('/compare_test')
 def compare_test():
     return render_template('main_templates/compare_cases.html')
+
+@main.route('/compare_run/<run_id>')
+def compare_run(run_id):
+    sd = SD()
+    result = sd.compare_by_run_case_id(run_id)
+    return redirect('http://127.0.0.1:8081/')

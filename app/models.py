@@ -1,5 +1,6 @@
 from app import db
 from sqlalchemy import text
+from flask_sqlalchemy.model import declared_attr
 
 
 class APIProjects(db.Model):
@@ -152,7 +153,7 @@ class TomcatEnv(db.Model):
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
     def __repr__(self):
-        return '{}'.format(self.name)
+        return '{}'.format(self.ip)
 
 
 class ParameterData(db.Model):
@@ -168,7 +169,7 @@ class ParameterData(db.Model):
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
     def __repr__(self):
-        return '{}'.format(self.name)
+        return 'ID:{}_name: {}'.format(self.id, self.name)
 
 
 class ReplaceInfo(db.Model):
@@ -185,7 +186,7 @@ class ReplaceInfo(db.Model):
                         server_default=text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
     def __repr__(self):
-        return '{}__{}'.format(self.json_path, self.replace_key)
+        return 'ID:{}_Json path:{}_replace key:_{}'.format(self.id, self.json_path, self.replace_key)
 
 
 class RunCase(db.Model):
@@ -193,12 +194,19 @@ class RunCase(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=True)
     case_id = db.Column(db.Integer, db.ForeignKey('api_cases.id'), nullable=False)
+
     old_env_id = db.Column(db.Integer, db.ForeignKey('tomcat_env.id'), nullable=False)
+    old_ = db.relationship(TomcatEnv, primaryjoin='TomcatEnv.id==RunCase.old_env_id') #, backref=backref('oldCreater',cascade='all,delete-orphan'))
+
     new_env_id = db.Column(db.Integer, db.ForeignKey('tomcat_env.id'), nullable=False)
+    new_ = db.relationship(TomcatEnv, primaryjoin='TomcatEnv.id==RunCase.new_env_id')
+
     replace_id = db.Column(db.Integer, db.ForeignKey('replace_info.id'), nullable=False)
-    paramter_list_id = db.Column(db.Integer, db.ForeignKey('paramter_data.id'), nullable=False)
+    paramter_list_id = db.Column(db.Integer, db.ForeignKey('parameter_data.id'), nullable=False)
     result_file = db.Column(db.String(128), nullable=True)
     replace = db.relationship(ReplaceInfo, backref='runcase')
     paramter_list = db.relationship(ParameterData, backref='runcase')
     create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
     operator = db.Column(db.String(64), nullable=True)
+
+    case = db.relationship(APICases,backref='runCase')
