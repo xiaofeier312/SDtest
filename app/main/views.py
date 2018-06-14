@@ -1,6 +1,5 @@
 from flask import render_template, redirect, url_for
 from . import main
-from .. import db
 from .services import SDProjectData as SD
 
 
@@ -56,4 +55,4 @@ def compare_test():
 def compare_run(run_id):
     sd = SD()
     result = sd.compare_by_run_case_id(run_id)
-    return redirect('http://127.0.0.1:8081/')
+    return redirect('http://127.0.0.1:5000/admin/reviewresultmodelview/')

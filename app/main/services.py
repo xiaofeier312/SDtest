@@ -15,7 +15,9 @@ class SDProjectData(object):
     """Project Data class"""
 
     def get_all_projects(self):
-        """return a list, like ['个人中心', '企业家']"""
+        """
+        :return: a list, like ['个人中心', '企业家']
+        """
         all_project = APIProjects.query.all()
         print(all_project)
         return all_project
@@ -53,7 +55,11 @@ class SDProjectData(object):
         return case_obj
 
     def optimize_url(self, url):
-        ''' if url start with http/ return is https or http with 1 or 0'''
+        """
+        if url start with http/ return is https or http with 1 or 0
+        :param url:
+        :return:
+        """
         match_str = '^https://'
         match_str2 = '^http://'
         form_url = url
@@ -67,8 +73,11 @@ class SDProjectData(object):
         return form_url
 
     def transfer_body_to_dict(self, case_obj):
-        """ Transfer str>"data={'a':1}" to list>> {"data":"{'a':1}}
-        //return a dict"""
+        """
+        Transfer str>"data={'a':1}" to list>> {"data":"{'a':1}}
+        :param case_obj:
+        :return:  a dict
+        """
         str_body = case_obj.body
         divsion_semi = str_body.split(';')
         dict_body = {}
@@ -79,8 +88,11 @@ class SDProjectData(object):
         return dict_body
 
     def transfer_body_to_dict_not_contain_data_string(self, case_id):
-        """ Transfer str>"data={'a':1}" to list>> {"data":"{'a':1}}
-        //return a dict"""
+        """
+        Transfer str>"data={'a':1}" to list>> {"data":"{'a':1}}
+        :param case_id:
+        :return:  a dict
+        """
         case = self.get_case_obj_by_case_id(case_id)
         str_body = case.body
         divsion_semi = str_body.split(';')
@@ -92,7 +104,12 @@ class SDProjectData(object):
         return dict_body
 
     def run_case_id(self, case_id, env_id):
-        """run case by single, case_id"""
+        """
+        run case by single, case_id
+        :param case_id:
+        :param env_id:
+        :return:
+        """
         db.session.remove()
         case = APICases.query.filter_by(id=case_id).first()
         env = TomcatEnv.query.filter_by(id=env_id).first()
@@ -121,7 +138,13 @@ class SDProjectData(object):
         return result
 
     def run_case_tool(self, case_id, old_env, new_env):
-        """run case//return result list"""
+        """
+        run case
+        :param case_id:
+        :param old_env:
+        :param new_env:
+        :return: result list
+        """
         print('Run case----')
         old_env_result = self.run_case_id(case_id, old_env)
         new_env_result = self.run_case_id(case_id, new_env)
@@ -138,11 +161,14 @@ class SDProjectData(object):
         return {'old': old_result2, 'new': new_result2}
 
     def split_text(self, origin_text):
-        """Input origin should be str or list only.
+        """
+        Input origin should be str or list only.
             //use X.splitlines to transfer to list wherher it is str or list
             //splitlines should be deal with list, so we transfer str to list
             //Also try to transfer json to json format to displayed humanityß
-            //return list"""
+        :param origin_text:
+        :return: list
+        """
         init_text = []
         if isinstance(origin_text, str):
             init_text.append(origin_text)
@@ -166,13 +192,24 @@ class SDProjectData(object):
         return dealed_text
 
     def get_new_file_name(self, case_id, old_env, new_env):
-        """return a new case name"""
+        """
+        :param case_id:
+        :param old_env:
+        :param new_env:
+        :return: a new case name
+        """
         date_str = time.strftime("%m-%d-%H:%M:%S")
         file_name = date_str + '_case_' + str(case_id) + '_Compare_env_' + str(old_env) + '-' + str(new_env) + '.html'
         return file_name
 
     def compare_result(self, case_id, old_env, new_env):
-        """compare results and make file"""
+        """
+        compare results and make file
+        :param case_id:
+        :param old_env:
+        :param new_env:
+        :return:
+        """
         file_name = self.get_new_file_name(case_id, old_env, new_env)
 
         d = difflib.HtmlDiff()
@@ -189,14 +226,23 @@ class SDProjectData(object):
     """
 
     def get_parameters_list(self, replace_id):
-        """return a list: e.g. userIdList: 701981,2,1302,  func will split the data to a list"""
+        """
+        :param replace_id:
+        :return: return a list: e.g. userIdList: 701981,2,1302,  func will split the data to a list
+        """
         parameter_obj = ParameterData.query.filter_by(id=replace_id).first()
         parameters = parameter_obj.dataList
         parameters_list = parameters.split(',')
         return parameters_list
 
     def assemble_body_parameter(self, case_id=0, parameter_id=0, replace_id=''):
-        """replace the value in json path  with parameters, return body_results"""
+        """
+        replace the value in json path  with parameters, return body_results
+        :param case_id:
+        :param parameter_id:
+        :param replace_id:
+        :return:
+        """
         if case_id == 0 or parameter_id == 0 or replace_id == '':
             return "error 14, parameter cannot be null"
         else:
@@ -237,7 +283,14 @@ class SDProjectData(object):
         raise NotImplementedError
 
     def run_case_with_parameters(self, case_id, env_id, parameter_id, replace_id):
-        """run case with different parameters"""
+        """
+        run case with different parameters
+        :param case_id:
+        :param env_id:
+        :param parameter_id:
+        :param replace_id:
+        :return:
+        """
         db.session.remove()
         case = APICases.query.filter_by(id=case_id).first()
         env = TomcatEnv.query.filter_by(id=env_id).first()
@@ -274,7 +327,15 @@ class SDProjectData(object):
         return all_results
 
     def compare_all_results(self, case_id, old_env, new_env, parameter_id, replace_id):
-        """compare results and make file"""
+        """
+        compare results and make file
+        :param case_id:
+        :param old_env:
+        :param new_env:
+        :param parameter_id:
+        :param replace_id:
+        :return:
+        """
         file_name = self.get_new_file_name(case_id, old_env, new_env)
 
         d = difflib.HtmlDiff()

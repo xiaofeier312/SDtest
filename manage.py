@@ -3,7 +3,7 @@ from app import create_app, db
 from flask_script import Manager, Shell
 from flask_migrate import MigrateCommand, Migrate
 from app.models import APIModules, APIProjects
-from app import init_custom_view
+
 
 app = create_app('default')
 manager = Manager(app)

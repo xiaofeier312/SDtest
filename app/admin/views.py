@@ -1,15 +1,7 @@
 from flask_admin.contrib.sqla import ModelView
-from flask_admin import expose
-from app.models import APIProjects, APIModules, APIDoc, APICases
-from .services import DataChoice
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from wtforms.fields import SelectField
 from flask_admin.contrib.sqla.ajax import QueryAjaxModelLoader
-from app import db
-from wtforms import form, fields, validators, widgets
-from flask import request
 from flask_admin.model.template import EndpointLinkRowAction, LinkRowAction
-
+from flask_admin import expose, BaseView
 
 class CustomModelView(ModelView):
     """View function of Flask-Admin for Models page."""
@@ -118,6 +110,10 @@ class runCaseModelView(ModelView):
     ]
 
 
+class ReviewResultModelView(BaseView):
+    @expose('/')
+    def check_result(self):
+        return self.render('/admin/contain_ftp_page.html')
 
 
 
