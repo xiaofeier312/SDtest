@@ -6,9 +6,11 @@ from flask_bootstrap import Bootstrap
 import subprocess
 import threading
 import os
+from app.admin.views import myAdminModelView
 
 db = SQLAlchemy()
-app_admin = Admin(name='API auto', template_mode='bootstrap3')
+app_admin = Admin(template_mode='bootstrap3', name='Compare tools')
+# app_admin = Admin(name='API auto', template_mode='bootstrap3', url='/admin')
 bootstrap = Bootstrap()
 
 
@@ -27,10 +29,10 @@ def create_app(config_name):
     app.config['SQLALCHEMY_POOL_RECYCLE'] = 1
 
     # flask_admin
-    app_admin.init_app(app)
+    app_admin.init_app(app, index_view=myAdminModelView(name='运行对比'))
     bootstrap.init_app(app)
     # set flask admin swatch
-    app.config['FLASK_ADMIN_SWATCH'] = 'cosmo'
+    app.config['FLASK_ADMIN_SWATCH'] = 'journal' # cerulean  #superhero #flatly  #Amelia #journal
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint, url_prefix='/main')
@@ -48,9 +50,9 @@ def init_custom_view():
     customModelView for every data class
     :return:
     """
-    from app import app_admin
+    # from app import app_admin
     from app.admin.views import CustomModelView, projectsModelView, modulesModelView, DocModelView, caseModelView, \
-        verifyModelView, resultModelView, runCaseModelView,ReviewResultModelView
+        verifyModelView, resultModelView, runCaseModelView, ReviewResultModelView, myAdminModelView
     from app.models import APIProjects, APIModules, APICases, APIDoc, TomcatEnv, CasesVerify, ParameterData, \
         ReplaceInfo, RunCase
 
@@ -62,7 +64,7 @@ def init_custom_view():
     app_admin.add_view(verifyModelView(CasesVerify, db.session, category='新增'))
     app_admin.add_view(CustomModelView(ParameterData, db.session, category='新增'))
     app_admin.add_view(CustomModelView(ReplaceInfo, db.session, category='新增'))
-    app_admin.add_view(runCaseModelView(RunCase, db.session, category='新增'))
+    app_admin.add_view(runCaseModelView(RunCase, db.session, category='运行'))
     app_admin.add_view(ReviewResultModelView(name='结果对比：', category='查看结果'))
 
 

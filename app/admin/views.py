@@ -1,7 +1,9 @@
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.contrib.sqla.ajax import QueryAjaxModelLoader
 from flask_admin.model.template import EndpointLinkRowAction, LinkRowAction
-from flask_admin import expose, BaseView
+from flask_admin import expose, BaseView, AdminIndexView
+from flask import redirect
+
 
 class CustomModelView(ModelView):
     """View function of Flask-Admin for Models page."""
@@ -37,6 +39,8 @@ class modulesModelView(ModelView):
     edit_modal = True
     form_excluded_columns = ['create_time', 'op_time']
     form_columns = ('name', 'project', 'remark')
+    column_list = ('id','name', 'project', 'remark', 'op_time')
+    column_default_sort = 'id'
     # column_searchable_list = ('projectID',APIProjects.id)
     # form_ajax_refs = {
     #     # 'projectID': QueryAjaxModelLoader('projectID', db.session, APIProjects, fields=['id', 'name'])
@@ -55,6 +59,8 @@ class DocModelView(ModelView):
     edit_modal = True
     form_excluded_columns = ['create_time', 'op_time']
     form_columns = ('name', 'module', 'Api_priority', 'path', 'http_method', 'headers', 'body', 'remark', 'operator')
+    column_list = ('id','name', 'module','path', 'remark', 'op_time')
+    column_default_sort = 'id'
     # form_ajax_refs = {
     #     'module': {
     #         'fields': [APIModules.name],
@@ -79,6 +85,8 @@ class caseModelView(ModelView):
         'http_method':[('get','get'),('post','post'),('put','put')]
     }
     column_exclude_list = ['Api_priority', 'is_https', 'http_method', 'http_response']
+    column_list = ('id','name', 'doc','url','http_method','body','remark', 'op_time')
+    column_default_sort = 'id'
 
 
 class verifyModelView(ModelView):
@@ -108,6 +116,8 @@ class runCaseModelView(ModelView):
         LinkRowAction('glyphicon glyphicon-sunglasses', 'http://127.0.0.1:5000/main/compare_run/{row_id}'),
         # EndpointLinkRowAction('glyphicon glyphicon-film', 'apimodules.index_view')
     ]
+    column_list = ('id','name', 'case_id', 'old_','new_','replace','paramter_list','remark', 'op_time')
+    column_default_sort = 'id'
 
 
 class ReviewResultModelView(BaseView):
@@ -117,5 +127,7 @@ class ReviewResultModelView(BaseView):
 
 
 
-
-
+class myAdminModelView(AdminIndexView):
+    @expose('/')
+    def index(self):
+        return redirect('/admin/runcase/')
