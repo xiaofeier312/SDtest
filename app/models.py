@@ -210,3 +210,14 @@ class RunCase(db.Model):
     operator = db.Column(db.String(64), nullable=True)
 
     case = db.relationship(APICases,backref='runCase')
+
+
+
+
+
+class BlueprintTask(db.Model):
+    __talbename = 'blueprint_task'
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String(128), nullable=True)
+    user_id = db.Column(db.Integer,nullable=True)
+    do_time = db.TIME
