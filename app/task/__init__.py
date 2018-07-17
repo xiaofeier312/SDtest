@@ -1,4 +1,6 @@
 from flask import Blueprint
 
-main = Blueprint('task', __name__)
+task = Blueprint('task', __name__)
+
+from . import errors, views
 

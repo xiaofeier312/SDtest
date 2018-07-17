@@ -53,5 +53,7 @@ def test():
     unittest.TextTestRunner(verbosity=2).run(tests)
 
 if __name__ == '__main__':
+    # Serving HTTP on 0.0.0.0 port 8091 (http://0.0.0.0:8091/) ...
+    # ^^ text main ftp server work with port 8091
     print('-------------Running-------------')
     manager.run()
