@@ -2,7 +2,8 @@ import os
 from app import create_app, db
 from flask_script import Manager, Shell
 from flask_migrate import MigrateCommand, Migrate
-from app.models import APIModules, APIProjects
+from app.models import APIModules, APIProjects, BlueprintTask, BlueprintSubtask
+import datetime
 
 
 app = create_app('default')
@@ -27,22 +28,33 @@ def create_db():
 
 @manager.command
 def init_data():
-    p1 = APIProjects()
-    p1.name = '个人'
-    p2 = APIProjects()
-    p2.name = '企业'
-    m1 = APIModules()
-    m1.name = '个人中心-mobile w'
-    m1.projectID = 1
-    m1.remark = 'module of mobile '
-    m2 = APIModules()
-    m2.name = 'portal war'
-    m2.projectID = 2
-    m2.remark = 'remark of protal war'
-    db.session.add(p1)
-    db.session.add(p2)
-    db.session.add(m1)
-    db.session.add(m2)
+    # p1 = APIProjects()
+    # p1.name = '个人2'
+    # p2 = APIProjects()
+    # p2.name = '企业2'
+    # m1 = APIModules()
+    # m1.name = '个人中心-mobile w2'
+    # m1.projectID = 1
+    # m1.remark = 'module of mobile '
+    # m2 = APIModules()
+    # m2.name = 'portal war2'
+    # m2.projectID = 2
+    # m2.remark = 'remark of protal war'
+
+    mtask1 = BlueprintTask()
+    mtask1.name = '学习任务1'
+    mtask1.start_date = datetime.datetime.now().date().strftime('%Y-%m-%d')
+    mtask1.total_days = 3
+    subtask1 = BlueprintSubtask()
+    subtask1.name= 'Spring'
+    subtask1.main_task_id = 1
+    subtask1.task_order = 1
+    # db.session.add(p1)
+    # db.session.add(p2)
+    # db.session.add(m1)
+    # db.session.add(m2)
+    db.session.add(mtask1)
+    db.session.add(subtask1)
     db.session.commit()
 
 @manager.command

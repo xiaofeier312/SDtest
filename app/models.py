@@ -225,10 +225,11 @@ class BlueprintTask(db.Model):
     high_level = db.Column(db.SmallInteger, nullable=True)  # 0 is most important
     is_complete = db.Column(db.Boolean, nullable=True, default=False)
     is_cancelled = db.Column(db.Boolean, nullable=True, default=False)
+    is_divide = db.Column(db.Boolean, default=False)    # if the main_task divided to subtask by days
     delay_days = db.Column(db.SmallInteger, default=0)
     user_id = db.Column(db.Integer, nullable=True)
     start_date = db.Column(db.Date, nullable=False)
-    total_days = db.Column(db.SmallInteger, nullable=False)
+    total_days = db.Column(db.SmallInteger, nullable=False, default=1)
     create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
     operator = db.Column(db.String(64), nullable=True)
 
@@ -239,10 +240,12 @@ class BlueprintSubtask(db.Model):
     name = db.Column(db.String(128))
     sub_content = db.Column(db.String(256), nullable=True)  # task deatils
     # high_level = db.Column(db.SmallInteger,nulable=True) # 0 is most important
-    main_task = db.Column(db.Integer)  # db.ForeignKey('blueprint_task.id')
+    main_task_id = db.Column(db.Integer, db.ForeignKey('blueprint_task.id'))
     task_order = db.Column(db.SmallInteger, nullable=True)
     is_complete = db.Column(db.Boolean, nullable=True, default=False)
     is_cancelled = db.Column(db.Boolean, nullable=True, default=False)
     delay_days = db.Column(db.SmallInteger, default=0)
     create_time = db.Column(db.TIMESTAMP(True), nullable=True, server_default=text('NOW()'))
     operator = db.Column(db.String(64), nullable=True)
+
+    main_task = db.relationship(BlueprintTask, backref='subtask')

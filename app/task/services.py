@@ -26,7 +26,7 @@ class Task(object):
         main_tasks = BlueprintTask.query.all()
         return main_tasks
 
-    def get_sub_task(self, main_task_ref_id ):
+    def get_sub_task(self, main_task_ref_id = None ):
         """
         Get sub task by main task
         :param main_task_id:
