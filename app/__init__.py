@@ -32,7 +32,7 @@ def create_app(config_name):
     app_admin.init_app(app, index_view=myAdminModelView(name='运行对比'))
     bootstrap.init_app(app)
     # set flask admin swatch
-    app.config['FLASK_ADMIN_SWATCH'] = 'journal' # cerulean  #superhero #flatly  #Amelia #journal
+    app.config['FLASK_ADMIN_SWATCH'] = 'journal'  # cerulean  #superhero #flatly  #Amelia #journal
 
     from .main import main as main_blueprint
     from .task import task as task_blueprint
@@ -56,7 +56,7 @@ def init_custom_view():
     from app.admin.views import CustomModelView, projectsModelView, modulesModelView, DocModelView, caseModelView, \
         verifyModelView, resultModelView, runCaseModelView, ReviewResultModelView, myAdminModelView
     from app.models import APIProjects, APIModules, APICases, APIDoc, TomcatEnv, CasesVerify, ParameterData, \
-        ReplaceInfo, RunCase
+        ReplaceInfo, RunCase, BlueprintTask, BlueprintSubtask
 
     app_admin.add_view(CustomModelView(TomcatEnv, db.session, category='新增'))
     app_admin.add_view(projectsModelView(APIProjects, db.session, category='新增'))
@@ -68,6 +68,8 @@ def init_custom_view():
     app_admin.add_view(CustomModelView(ReplaceInfo, db.session, category='新增'))
     app_admin.add_view(runCaseModelView(RunCase, db.session, category='运行'))
     app_admin.add_view(ReviewResultModelView(name='结果对比：', category='查看结果'))
+    app_admin.add_view(CustomModelView(BlueprintTask, db.session, category='任务管理'))
+    app_admin.add_view(CustomModelView(BlueprintSubtask, db.session, category='任务管理'))
 
 
 def start_ftp_server(port=8091):
