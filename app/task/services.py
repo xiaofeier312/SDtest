@@ -1,6 +1,7 @@
 import datetime
 from app.models import db
 from app.models import BlueprintSubtask, BlueprintTask
+import calendar
 
 
 class Task(object):
@@ -18,7 +19,8 @@ class Task(object):
         now_month = datetime.datetime.now().month
         now_year = datetime.datetime.now().year
         now_day = datetime.datetime.now().day
-        return [now_year, now_month, now_day, now_time]
+        now_weekday = datetime.datetime.now().weekday()
+        return [now_year, now_month, now_day,now_weekday, now_time]
 
     def get_all_main_tasks(self):
         """
@@ -60,6 +62,28 @@ class Task(object):
                 db.session.add(sub_task)
                 db.session.commit()
             return {"rs": 0, "desc": "completes"}
+
+    def get_year_month(self):
+        """
+        Return all month in 2017 and 2018
+        :return:
+        """
+        month = [x for x in range(1,13)]
+        all_month = []
+
+    def get_day_list_by_month(self,year,month):
+        """
+        Get all days in one month.
+        :param year:
+        :param month:
+        :return:
+        """
+        days_in_month = calendar.monthrange(year,month)
+        return days_in_month
+
+    def get_tasks_by_month(self,year,month):
+        pass
+
 
     def main_task_complete(self,main_task_id):
         task = BlueprintTask.query.filter_by(id=main_task_id).first()

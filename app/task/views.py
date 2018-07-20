@@ -12,5 +12,6 @@ def task_index():
 
 @task.route('/test', methods=['GET'])
 def task_test():
-
+    month_list = range(1,13)
+    month_day_list = []
     return render_template('do_task/test_task.html')
