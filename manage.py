@@ -49,11 +49,13 @@ def init_data():
     subtask1.name= 'Spring'
     subtask1.main_task_id = 1
     subtask1.task_order = 1
+    subtask1.work_day = '2018-06-11'
     # db.session.add(p1)
     # db.session.add(p2)
     # db.session.add(m1)
     # db.session.add(m2)
     db.session.add(mtask1)
+    db.session.commit()
     db.session.add(subtask1)
     db.session.commit()
 

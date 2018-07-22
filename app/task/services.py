@@ -2,6 +2,7 @@ import datetime
 from app.models import db
 from app.models import BlueprintSubtask, BlueprintTask
 import calendar
+from copy import deepcopy
 
 
 class Task(object):
@@ -41,7 +42,7 @@ class Task(object):
         :return:
         """
         if main_task_ref_id:
-            sub_task = BlueprintSubtask.query.filter_by(main_task_id=main_task_ref_id)
+            sub_task = BlueprintSubtask.query.filter_by(main_task_id=main_task_ref_id).first()
         else:
             sub_task = BlueprintSubtask.query.all()
         return sub_task
@@ -59,6 +60,8 @@ class Task(object):
             for i in range(0, main_task.total_days):
                 sub_task = BlueprintSubtask()
                 sub_task.name = main_task.name + '_day_' + str(i + 1)
+                days_order = datetime.timedelta(days=i)
+                sub_task.work_day = main_task.start_date +days_order
                 db.session.add(sub_task)
                 db.session.commit()
             return {"rs": 0, "desc": "completes"}
@@ -96,6 +99,44 @@ class Task(object):
         subtask.is_complete = True
         db.session.add(subtask)
         db.session.commit()
+
+    def get_calendar(self):
+        month_list = list(range(1, 13))
+        month_max = calendar.mdays[1:13]
+        print('month_max is: {}'.format(month_max))
+        cal = {2018: month_list, 2019: month_list}
+        cal_result = {2018: {}, 2019: {}}
+
+        for year in cal.keys():
+            for month in cal[year]:
+                print(month)
+                cal_result[year][month] = list(range(1, month_max[month - 1] + 1))
+        return cal_result
+
+    def get_calendar_task(self):
+        all_subtasks = self.get_sub_task()
+        cal = self.get_calendar()
+        cal_task = deepcopy(cal)
+        for year in cal.keys():
+            for month in cal[year]:
+                cal_task[year][month] = {}
+                for day in cal[year][month]:
+                    cal_task[year][month][day] = [None, None, None]
+                    for subtask in all_subtasks:
+                        dic_date = datetime.date(year,month,day)
+                        if dic_date == subtask.work_day:
+                            print('Match work date {}_{}_{}'.format(year,month,day))
+                            cal_task[year][month][day]=[subtask.name,subtask.work_day,subtask.is_complete]
+        return cal_task
+
+
+    def get_task_by_day(self, day):
+        """
+        e.g. day is 2018-02-03
+        :param day:
+        :return:
+        """
+        subtasks = BlueprintSubtask.query.filter_by(work_day=day).all()
 
 
 if __name__ == '__main__':

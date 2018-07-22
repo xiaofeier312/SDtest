@@ -213,7 +213,6 @@ class RunCase(db.Model):
     case = db.relationship(APICases, backref='runCase')
 
 
-
 class BlueprintTask(db.Model):
     """
     models for blueprint project
@@ -225,8 +224,9 @@ class BlueprintTask(db.Model):
     high_level = db.Column(db.SmallInteger, nullable=True)  # 0 is most important
     is_complete = db.Column(db.Boolean, nullable=True, default=False)
     is_cancelled = db.Column(db.Boolean, nullable=True, default=False)
-    is_divided = db.Column(db.Boolean, default=False)    # if the main_task divided to subtask by days
-    task_time_propery = db.Column(db.SmallInteger, default=0)  # task divided days; 0, normal:working day+weekend; 1, working day; 2, weekend
+    is_divided = db.Column(db.Boolean, default=False)  # if the main_task divided to subtask by days
+    task_time_propery = db.Column(db.SmallInteger,
+                                  default=0)  # task divided days; 0, normal:working day+weekend; 1, working day; 2, weekend
     delay_days = db.Column(db.SmallInteger, default=0)
     user_id = db.Column(db.Integer, nullable=True)
     start_date = db.Column(db.Date, nullable=False)
@@ -243,6 +243,7 @@ class BlueprintSubtask(db.Model):
     # high_level = db.Column(db.SmallInteger,nulable=True) # 0 is most important
     main_task_id = db.Column(db.Integer, db.ForeignKey('blueprint_task.id'))
     task_order = db.Column(db.SmallInteger, nullable=True)
+    work_day = db.Column(db.Date, nullable=False)
     is_complete = db.Column(db.Boolean, nullable=True, default=False)
     is_cancelled = db.Column(db.Boolean, nullable=True, default=False)
     delay_days = db.Column(db.SmallInteger, default=0)
