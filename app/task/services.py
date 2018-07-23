@@ -121,12 +121,14 @@ class Task(object):
             for month in cal[year]:
                 cal_task[year][month] = {}
                 for day in cal[year][month]:
-                    cal_task[year][month][day] = ['-', '-', '-']
+                    cal_task[year][month][day] = [['-', '-', '-']]
                     for subtask in all_subtasks:
                         dic_date = datetime.date(year, month, day)
                         if dic_date == subtask.work_day:
                             print('Match work date {}_{}_{}'.format(year, month, day))
-                            cal_task[year][month][day] = [subtask.name, subtask.work_day, subtask.is_complete]
+                            if cal_task[year][month][day][0] == ['-', '-', '-']:
+                                del cal_task[year][month][day][0]
+                            cal_task[year][month][day].append([subtask.name, subtask.work_day, subtask.is_complete])
         return cal_task
 
     def get_task_by_day(self, day):
