@@ -21,7 +21,7 @@ class Task(object):
         now_year = datetime.datetime.now().year
         now_day = datetime.datetime.now().day
         now_weekday = datetime.datetime.now().weekday()
-        return [now_year, now_month, now_day,now_weekday, now_time]
+        return [now_year, now_month, now_day, now_weekday, now_time]
 
     def get_all_main_tasks(self):
         """
@@ -61,7 +61,7 @@ class Task(object):
                 sub_task = BlueprintSubtask()
                 sub_task.name = main_task.name + '_day_' + str(i + 1)
                 days_order = datetime.timedelta(days=i)
-                sub_task.work_day = main_task.start_date +days_order
+                sub_task.work_day = main_task.start_date + days_order
                 db.session.add(sub_task)
                 db.session.commit()
             return {"rs": 0, "desc": "completes"}
@@ -71,30 +71,29 @@ class Task(object):
         Return all month in 2017 and 2018
         :return:
         """
-        month = [x for x in range(1,13)]
+        month = [x for x in range(1, 13)]
         all_month = []
 
-    def get_day_list_by_month(self,year,month):
+    def get_day_list_by_month(self, year, month):
         """
         Get all days in one month.
         :param year:
         :param month:
         :return:
         """
-        days_in_month = calendar.monthrange(year,month)
+        days_in_month = calendar.monthrange(year, month)
         return days_in_month
 
-    def get_tasks_by_month(self,year,month):
+    def get_tasks_by_month(self, year, month):
         pass
 
-
-    def main_task_complete(self,main_task_id):
+    def main_task_complete(self, main_task_id):
         task = BlueprintTask.query.filter_by(id=main_task_id).first()
         task.is_complete = True
         db.session.add(task)
         db.session.commit()
 
-    def sub_task_complete(self,subtask_id):
+    def sub_task_complete(self, subtask_id):
         subtask = BlueprintSubtask.query.filter_by(id=subtask_id).first()
         subtask.is_complete = True
         db.session.add(subtask)
@@ -102,9 +101,10 @@ class Task(object):
 
     def get_calendar(self):
         month_list = list(range(1, 13))
+        month2017 = [6, 7, 8, 9, 10, 11, 12]
         month_max = calendar.mdays[1:13]
         print('month_max is: {}'.format(month_max))
-        cal = {2018: month_list, 2019: month_list}
+        cal = {2018: month2017, 2019: month_list}
         cal_result = {2018: {}, 2019: {}}
 
         for year in cal.keys():
@@ -121,14 +121,13 @@ class Task(object):
             for month in cal[year]:
                 cal_task[year][month] = {}
                 for day in cal[year][month]:
-                    cal_task[year][month][day] = [None, None, None]
+                    cal_task[year][month][day] = ['-', '-', '-']
                     for subtask in all_subtasks:
-                        dic_date = datetime.date(year,month,day)
+                        dic_date = datetime.date(year, month, day)
                         if dic_date == subtask.work_day:
-                            print('Match work date {}_{}_{}'.format(year,month,day))
-                            cal_task[year][month][day]=[subtask.name,subtask.work_day,subtask.is_complete]
+                            print('Match work date {}_{}_{}'.format(year, month, day))
+                            cal_task[year][month][day] = [subtask.name, subtask.work_day, subtask.is_complete]
         return cal_task
-
 
     def get_task_by_day(self, day):
         """
