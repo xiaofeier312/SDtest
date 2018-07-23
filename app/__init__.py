@@ -41,7 +41,7 @@ def create_app(config_name):
 
     init_custom_view()  # !!!When first create DB, comment this. or it will occur exception: cannot find table XXX
 
-    os.system('./shell/run_ftp.sh&')
+    # os.system('./shell/run_ftp.sh&')
     print('^_^ APP is created ^_^')
     return app
 
