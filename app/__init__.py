@@ -4,9 +4,8 @@ from config import config
 from flask_admin import Admin
 from flask_bootstrap import Bootstrap
 import subprocess
-import threading
-import os
 from app.admin.views import myAdminModelView
+from config import NormalConfig
 
 db = SQLAlchemy()
 app_admin = Admin(template_mode='bootstrap3', name='Compare tools')
@@ -20,6 +19,8 @@ def create_app(config_name):
     :param config_name:
     :return:
     """
+    normal_config = NormalConfig()
+    config_name = normal_config.get_current_env()
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)

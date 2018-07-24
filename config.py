@@ -17,6 +17,7 @@ class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root@127.0.0.1/tushare?charset=utf8'
 
 
+
 class TestingConfig(Config):
     DEBUG = True
     # old config:
@@ -31,6 +32,7 @@ class TestingConfig(Config):
     SQLALCHEMY_ECHO = True # set sql echo = true
 
 
+
 config = {
     'testing': TestingConfig,
     'production': ProductionConfig,
@@ -38,5 +40,19 @@ config = {
 }
 
 class NormalConfig(Config):
+    """
+    1. set variable 'sdauto_env' in linux//sdauto_env=testing//declare -x sdauto
+    2. call this class
+    """
     server_http_ip = 'http://47.98.133.163/'
     server_ip = '47.98.133.163'
+    local_ip = 'http://127.0.0.1:5000/'
+
+    def get_current_env(self):
+        env_list = os.environ
+        if 'sdauto_env' in env_list:
+            env = env_list['sdauto_env']
+        else:
+            env = 'default'
+        print('-- Get env is: {}'.format(env))
+        return env
