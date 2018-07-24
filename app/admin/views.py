@@ -3,7 +3,7 @@ from flask_admin.contrib.sqla.ajax import QueryAjaxModelLoader
 from flask_admin.model.template import EndpointLinkRowAction, LinkRowAction
 from flask_admin import expose, BaseView, AdminIndexView
 from flask import redirect
-
+from config import NormalConfig
 
 class CustomModelView(ModelView):
     """View function of Flask-Admin for Models page."""
@@ -108,12 +108,13 @@ class resultModelView(ModelView):
 
 class runCaseModelView(ModelView):
     """Custom runCaseModelView"""
+    current_server = NormalConfig.server_http_ip
     column_display_pk = True
     create_modal = True
     edit_modal = True
     form_excluded_columns = ['create_time', 'op_time']
     column_extra_row_actions = [
-        LinkRowAction('glyphicon glyphicon-sunglasses', 'http://127.0.0.1:5000/main/compare_run/{row_id}'),
+        LinkRowAction('glyphicon glyphicon-sunglasses', current_server+'main/compare_run/{row_id}'),
         # EndpointLinkRowAction('glyphicon glyphicon-film', 'apimodules.index_view')
     ]
     column_list = ('id','name', 'case_id', 'old_','new_','replace','paramter_list','remark', 'op_time')
@@ -131,3 +132,14 @@ class myAdminModelView(AdminIndexView):
     @expose('/')
     def index(self):
         return redirect('/admin/runcase/')
+
+class BlueprintTask(ModelView):
+    current_server = NormalConfig.server_http_ip
+    column_display_pk = True
+    create_modal = True
+    edit_modal = True
+    form_excluded_columns = ['operator']
+    column_extra_row_actions = [
+        LinkRowAction('glyphicon glyphicon-sunglasses', current_server+'main/compare_run/{row_id}'),
+        # EndpointLinkRowAction('glyphicon glyphicon-film', 'apimodules.index_view')
+    ]

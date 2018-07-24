@@ -101,7 +101,9 @@ class Task(object):
 
     def get_calendar(self):
         month_list = list(range(1, 13))
+        month_list.reverse()
         month2017 = [6, 7, 8, 9, 10, 11, 12]
+        month2017.reverse()
         month_max = calendar.mdays[1:13]
         print('month_max is: {}'.format(month_max))
         cal = {2018: month2017, 2019: month_list}

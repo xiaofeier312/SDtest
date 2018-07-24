@@ -36,3 +36,7 @@ config = {
     'production': ProductionConfig,
     'default': TestingConfig
 }
+
+class NormalConfig(Config):
+    server_http_ip = 'http://47.98.133.163/'
+    server_ip = '47.98.133.163'
