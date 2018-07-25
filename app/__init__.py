@@ -6,6 +6,7 @@ from flask_bootstrap import Bootstrap
 import subprocess
 from app.admin.views import myAdminModelView
 from config import NormalConfig
+import os
 
 db = SQLAlchemy()
 app_admin = Admin(template_mode='bootstrap3', name='Compare tools')
@@ -42,7 +43,7 @@ def create_app(config_name):
 
     init_custom_view()  # !!!When first create DB, comment this. or it will occur exception: cannot find table XXX
 
-    # os.system('./shell/run_ftp.sh&')
+    os.system('./shell/run_ftp.sh&')
     print('^_^ APP is created ^_^')
     return app
 
@@ -55,7 +56,8 @@ def init_custom_view():
     """
     # from app import app_admin
     from app.admin.views import CustomModelView, projectsModelView, modulesModelView, DocModelView, caseModelView, \
-        verifyModelView, resultModelView, runCaseModelView, ReviewResultModelView, myAdminModelView
+        verifyModelView, resultModelView, runCaseModelView, ReviewResultModelView, myAdminModelView, BlueprintTaskModelView,\
+        BlueprintSubTaskModelView
     from app.models import APIProjects, APIModules, APICases, APIDoc, TomcatEnv, CasesVerify, ParameterData, \
         ReplaceInfo, RunCase, BlueprintTask, BlueprintSubtask
 
@@ -69,8 +71,8 @@ def init_custom_view():
     app_admin.add_view(CustomModelView(ReplaceInfo, db.session, category='新增'))
     app_admin.add_view(runCaseModelView(RunCase, db.session, category='运行'))
     app_admin.add_view(ReviewResultModelView(name='结果对比：', category='查看结果'))
-    app_admin.add_view(CustomModelView(BlueprintTask, db.session, category='任务管理'))
-    app_admin.add_view(CustomModelView(BlueprintSubtask, db.session, category='任务管理'))
+    app_admin.add_view(BlueprintTaskModelView(BlueprintTask, db.session, category='任务管理'))
+    app_admin.add_view(BlueprintSubTaskModelView(BlueprintSubtask, db.session, category='任务管理'))
 
 
 def start_ftp_server(port=8091):

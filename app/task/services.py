@@ -3,6 +3,7 @@ from app.models import db
 from app.models import BlueprintSubtask, BlueprintTask
 import calendar
 from copy import deepcopy
+import json
 
 
 class Task(object):
@@ -54,17 +55,20 @@ class Task(object):
         :return:
         """
         main_task = self.get_single_task(main_task_id)
-        if main_task.is_divided or (main_task.total_days <= 1):
-            return {"rs": 0, "desc": "No need to divied"}
+        if main_task.is_divided:
+            dic = {"rs": 0, "desc": "No need to divide."}
         else:
-            for i in range(0, main_task.total_days):
+            for i in range(1, main_task.total_days+1):
                 sub_task = BlueprintSubtask()
-                sub_task.name = main_task.name + '_day_' + str(i + 1)
-                days_order = datetime.timedelta(days=i)
+                sub_task.name = main_task.name + '_day_' + str(i)
+                days_order = datetime.timedelta(days=i-1)
                 sub_task.work_day = main_task.start_date + days_order
                 db.session.add(sub_task)
                 db.session.commit()
-            return {"rs": 0, "desc": "completes"}
+            main_task.is_divided = 1
+            dic = {"rs": 1, "desc": "completed."}
+        r = json.dumps(dic)
+        return r
 
     def get_year_month(self):
         """
@@ -95,6 +99,8 @@ class Task(object):
 
     def sub_task_complete(self, subtask_id):
         subtask = BlueprintSubtask.query.filter_by(id=subtask_id).first()
+        if not subtask:
+            print('----Cannot find the subtask, id: '.format(subtask_id))
         subtask.is_complete = True
         db.session.add(subtask)
         db.session.commit()
@@ -123,14 +129,14 @@ class Task(object):
             for month in cal[year]:
                 cal_task[year][month] = {}
                 for day in cal[year][month]:
-                    cal_task[year][month][day] = [['-', '-', '-']]
+                    cal_task[year][month][day] = [['-', '-', '-','-']]
                     for subtask in all_subtasks:
                         dic_date = datetime.date(year, month, day)
                         if dic_date == subtask.work_day:
                             print('Match work date {}_{}_{}'.format(year, month, day))
-                            if cal_task[year][month][day][0] == ['-', '-', '-']:
+                            if cal_task[year][month][day][0] == ['-', '-', '-','-']:
                                 del cal_task[year][month][day][0]
-                            cal_task[year][month][day].append([subtask.name, subtask.work_day, subtask.is_complete])
+                            cal_task[year][month][day].append([subtask.name, subtask.work_day, subtask.is_complete,subtask.id])
         return cal_task
 
     def get_task_by_day(self, day):

@@ -64,6 +64,7 @@
                                             <th>Time</th>
                                             <th>Task</th>
                                             <th>Status</th>
+                                            <th>complete</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -72,6 +73,13 @@
                                                 <td>{{ month }}-{{ day }}</td>
                                                 <td>{{ cal[year][month][day][0][0] }}</td>
                                                 <td>{{ cal[year][month][day][0][2] }}</td>
+                                                <td >
+                                                    {% if  cal[year][month][day][0][3]!='-' %}
+                                                        <button type="button" class="btn btn-info btn-sm" id="td_{{ cal[year][month][day][0][3] }}">Complete</button>
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                </td>
                                             </tr>
                                             {% if cal[year][month][day]|length>1 %}
                                                 {% for task in cal[year][month][day][1:] %}
@@ -79,6 +87,13 @@
                                                     <td> </td>
                                                     <td>{{ cal[year][month][day][loop.index][0] }}</td>
                                                     <td>{{ cal[year][month][day][loop.index][2] }}</td>
+                                                    <td >
+                                                        {% if  cal[year][month][day][loop.index][3]!='-' %}
+                                                            <button type="button" class="btn btn-info btn-sm" id="td_{{ cal[year][month][day][loop.index][3] }}">Complete</button>
+                                                        {% else %}
+                                                            -
+                                                        {% endif %}
+                                                    </td>
                                                 </tr>
                                                 {% endfor %}
                                             {% endif %}
@@ -102,3 +117,7 @@
     </div>
 {% endblock %}
 
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static',filename='sd_task.js') }}"></script>
+{% endblock %}

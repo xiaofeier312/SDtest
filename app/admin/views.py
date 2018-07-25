@@ -108,13 +108,13 @@ class resultModelView(ModelView):
 
 class runCaseModelView(ModelView):
     """Custom runCaseModelView"""
-    current_server = NormalConfig.server_http_ip
+    current_server = NormalConfig().get_current_ip()
     column_display_pk = True
     create_modal = True
     edit_modal = True
     form_excluded_columns = ['create_time', 'op_time']
     column_extra_row_actions = [
-        LinkRowAction('glyphicon glyphicon-sunglasses', current_server+'main/compare_run/{row_id}'),
+        LinkRowAction('glyphicon glyphicon-play', current_server+'main/compare_run/{row_id}'),
         # EndpointLinkRowAction('glyphicon glyphicon-film', 'apimodules.index_view')
     ]
     column_list = ('id','name', 'case_id', 'old_','new_','replace','paramter_list','remark', 'op_time')
@@ -133,13 +133,19 @@ class myAdminModelView(AdminIndexView):
     def index(self):
         return redirect('/admin/runcase/')
 
-class BlueprintTask(ModelView):
-    current_server = NormalConfig.server_http_ip
+class BlueprintTaskModelView(ModelView):
+    current_server = NormalConfig().get_current_ip()
     column_display_pk = True
     create_modal = True
     edit_modal = True
     form_excluded_columns = ['operator']
     column_extra_row_actions = [
-        LinkRowAction('glyphicon glyphicon-sunglasses', current_server+'main/compare_run/{row_id}'),
+        LinkRowAction('glyphicon glyphicon-play', current_server+'task/divide_task/{row_id}'),
         # EndpointLinkRowAction('glyphicon glyphicon-film', 'apimodules.index_view')
     ]
+
+class BlueprintSubTaskModelView(ModelView):
+    column_display_pk = True
+    create_modal = True
+    edit_modal = True
+    form_excluded_columns = ['operator']

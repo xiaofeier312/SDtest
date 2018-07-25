@@ -50,7 +50,7 @@ class NormalConfig(Config):
     2. call this class
     """
     server_http_ip = 'http://47.98.133.163/'
-    server_ip = '47.98.133.163'
+    # server_ip = '47.98.133.163'
     local_ip = 'http://127.0.0.1:5000/'
 
     def get_current_env(self):
@@ -61,3 +61,10 @@ class NormalConfig(Config):
             env = 'default'
         print('-- Get env is: {}'.format(env))
         return env
+
+    def get_current_ip(self):
+        env = self.get_current_env()
+        if env == 'default':
+            return self.local_ip
+        else:
+            return self.server_http_ip
