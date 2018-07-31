@@ -76,32 +76,43 @@ class SDProjectData(object):
         """
         Transfer str>"data={'a':1}" to list>> {"data":"{'a':1}}
         :param case_obj:
-        :return:  a dict
+        :return:  ['{"data":{'x':1}','token=xxxx']
         """
-        str_body = case_obj.body
+        body_list = case_obj.body.split('&') # support data={...}&token=XXXX, and put data={...} in start index of the body_list
+        for i in body_list:
+            if (i.find('data={')>-1):
+                body_list.remove(i)
+                body_list.insert(0,i)
+                print('----- make right order for body_list: {}'.format(body_list))
+                break
+
+        str_body = body_list[0]
         divsion_semi = str_body.split(';')
         dict_body = {}
         for i in divsion_semi:
             first_key = i.split('=', 1)[0]
             second_value = i.split('=', 1)[1]
             dict_body[first_key] = second_value
-        return dict_body
 
-    def transfer_body_to_dict_not_contain_data_string(self, case_id):
+        final_body = copy.deepcopy(body_list)
+        final_body.pop(0) # pop the origin data={...}
+        final_body.insert(0,dict_body) #insert the dealed test {data:{ab:11}}
+        return final_body
+
+    def transfer_body_to_dict_not_contain_data_string(self, str):
         """
-        Transfer str>"data={'a':1}" to list>> {"data":"{'a':1}}
+        Transfer str>"token=xxxxxx" to list>> {"token":"xxxxxx"}
         :param case_id:
         :return:  a dict
         """
-        case = self.get_case_obj_by_case_id(case_id)
-        str_body = case.body
-        divsion_semi = str_body.split(';')
-        dict_body = {}
-        for i in divsion_semi:
-            first_key = i.split('=', 1)[0]
-            second_value = i.split('=', 1)[1]
-            dict_body[first_key] = second_value
-        return dict_body
+        if str[0] == '&':
+            str = str[1:]
+        parameters_list = str.split('&')
+        sub_dic = {}
+        for i in parameters_list:
+            sub_parameters_list = i.split('=')
+            sub_dic[sub_parameters_list[0]]=sub_parameters_list[1]
+        return sub_dic
 
     def run_case_id(self, case_id, env_id):
         """
@@ -113,8 +124,14 @@ class SDProjectData(object):
         db.session.remove()
         case = APICases.query.filter_by(id=case_id).first()
         env = TomcatEnv.query.filter_by(id=env_id).first()
-        final_url = self.optimize_url(env.ip + ':' + str(env.port) + '/' + case.url)
-        body_dict = self.transfer_body_to_dict(case)
+
+        url= case.url
+        if url[0]=='/':
+            url=url[1:]
+        final_url = self.optimize_url(env.ip + ':' + str(env.port) + '/' + url)
+        body_dict_list = self.transfer_body_to_dict(case)
+
+        body_dict='&'.join(body_dict_list)
         # final_headers ->> Should be dict, but it is str in mysql database.
         # try:
         #     final_body = json.dumps(case.body)
@@ -250,9 +267,14 @@ class SDProjectData(object):
             replace_jsonpath_path = replace_jsonpath_obj.json_path
 
             case = self.get_case_obj_by_case_id(case_id)
-            case_id = case.id
-            case_body = case.body
-            body_dict = self.transfer_body_to_dict(case)
+
+            body_dict = self.transfer_body_to_dict(case)[0]
+            constant_paramter_str = ''
+            if self.transfer_body_to_dict(case)[1:]:
+                constant_paramter = self.transfer_body_to_dict(case)[1:]
+                constant_paramter_str = '&' + '&'.join(constant_paramter)
+
+            print('----- body_dict: {}'.format(body_dict))
             body_dict[replace_jsonpath_obj.replace_key] = json.loads(
                 body_dict[replace_jsonpath_obj.replace_key].replace("'",
                                                                     '"'))  # e.g. find {'a':1} for dealing the value in {'data':{'a':1}}
@@ -273,9 +295,15 @@ class SDProjectData(object):
             for i in parameters_list:
                 exec_str2 = exec_str1 + '=' + str(i)
                 exec(exec_str2)
+
                 body_dict_has_string[replace_jsonpath_obj.replace_key] = str(
                     body_dict[replace_jsonpath_obj.replace_key])
-                body_result.append(deepcopy(body_dict_has_string))
+                if constant_paramter_str:
+                    constant_paramter_dic = self.transfer_body_to_dict_not_contain_data_string(constant_paramter_str)
+                    body_result.append(dict(deepcopy(body_dict_has_string), **constant_paramter_dic))
+                else:
+                    body_result.append(deepcopy(body_dict_has_string))
+
 
             return body_result
 
@@ -294,7 +322,11 @@ class SDProjectData(object):
         db.session.remove()
         case = APICases.query.filter_by(id=case_id).first()
         env = TomcatEnv.query.filter_by(id=env_id).first()
-        final_url = self.optimize_url(env.ip + ':' + str(env.port) + '/' + case.url)
+
+        url = case.url
+        if url[0]=='/':
+            url=url[1:]
+        final_url = self.optimize_url(env.ip + ':' + str(env.port) + '/' + url)
         body_dict = self.transfer_body_to_dict(case)
         # final_headers ->> Should be dict, but it is str in mysql database.
 
@@ -308,16 +340,16 @@ class SDProjectData(object):
         #     return json.dumps({'result': 'error occur! error number: 15', 'resultCode': 0})
 
         all_results = []
-        print('------case.http_method is {}-{}-{}'.format(case.http_method, final_url, case.headers))
+        print('------case.http_method is {} | {} | {}'.format(case.http_method, final_url, case.headers))
         for i in body_dict_with_parameters:
             if case.http_method == 'get':
                 # 1 is get
                 result = requests.request('get', final_url, params=i)
             elif case.http_method == 'post':
                 # 2 is post
-                print('--post func')
+                print('-#-post func')
                 result = requests.request('post', final_url, params=i)
-                print('--case.body:{}=='.format(i))
+                print('-#-case.body:{}=='.format(i))
             else:
                 result = json.dumps({'result': 'error occur! error number: 16', 'resultCode': 0})
                 return result
@@ -344,8 +376,13 @@ class SDProjectData(object):
         # results_list = self.run_case_tool(case_id, old_env, new_env)
         results_old = self.run_case_with_parameters(case_id, old_env, parameter_id, replace_id)
         split_result_old = self.split_text(results_old)
+        split_result_old.insert(0, 'OLD_ENV:    ')
+
+
         results_new = self.run_case_with_parameters(case_id, new_env, parameter_id, replace_id)
         split_result_new = self.split_text(results_new)
+        split_result_new.insert(0, 'NEW_ENV:    ')
+
         print('>>run all cases')
         f.writelines(d.make_file(split_result_old, split_result_new))
         f.close()
